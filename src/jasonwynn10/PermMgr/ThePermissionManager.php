@@ -4,14 +4,16 @@ namespace jasonwynn10\PermMgr;
 use jasonwynn10\PermMgr\event\EventListener;
 use jasonwynn10\PermMgr\event\PermissionAddEvent;
 use jasonwynn10\PermMgr\event\PermissionRemoveEvent;
-
 use jasonwynn10\PermMgr\task\PermissionExpirationTask;
+
 use pocketmine\lang\BaseLang;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionAttachment;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
+
+use spoondetector\SpoonDetector;
 
 class ThePermissionManager extends PluginBase {
 	/** @var PermissionAttachment[] $perms */
@@ -21,6 +23,7 @@ class ThePermissionManager extends PluginBase {
 	private $baseLang = null;
 
 	public function onLoad() {
+		SpoonDetector::printSpoon($this,"spoon.txt");
 		$this->saveDefaultConfig();
 		$this->saveResource("groups.yml");
 		$lang = $this->getConfig()->get("Lang", BaseLang::FALLBACK_LANGUAGE);
@@ -117,7 +120,7 @@ class ThePermissionManager extends PluginBase {
 	public function reloadPlayerPermissions() {
 		foreach($this->getServer()->getOnlinePlayers() as $player) {
 			$attachment = $player->addAttachment($this);
-			$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
+			$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName(){0}.DIRECTORY_SEPARATOR."{$player->getLowerCaseName()}.yml", Config::YAML);
 			//$config->reload();
 			foreach($config->getAll() as $permission => $bool) {
 				$attachment->setPermission($permission, $bool);
