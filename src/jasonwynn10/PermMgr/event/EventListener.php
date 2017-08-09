@@ -23,9 +23,6 @@ class EventListener implements Listener {
 	 * @param PlayerJoinEvent $ev
 	 */
 	public function onJoin(PlayerJoinEvent $ev) {
-		if($ev->isCancelled()) {
-			return;
-		}
 		$this->plugin->attachPlayer($ev->getPlayer());
 	}
 
