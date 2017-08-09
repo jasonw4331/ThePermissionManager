@@ -24,3 +24,5 @@ permissions:
             default: true
           PermManager.command.reloadpermissions:
             default: op
+          PermManager.command.pluginpermissions:
+            default: true
