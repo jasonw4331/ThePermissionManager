@@ -126,6 +126,8 @@ class ThePermissionManager extends PluginBase {
 		$attachment = $player->addAttachment($this);
 		$this->perms[$player->getId()] = $attachment;
 		$this->getServer()->getPluginManager()->callEvent(new PermissionAttachEvent($this));
+		@mkdir($this->getDataFolder()."players");
+		@mkdir($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName());
 		$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
 		if(!isset($config->getAll()["group"])) {
 			$config->set("group", $this->defaultGroup);
