@@ -37,6 +37,7 @@ class ListUserPermissions extends PluginCommand {
 		if(empty($args)) {
 			return false;
 		}
+		var_dump($args[0]);
 		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
 		if($player instanceof Player) {
 			$permissions = [];

@@ -34,14 +34,9 @@ class ReloadPermissions extends PluginCommand {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
-		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
-		if($player instanceof Player) {
-			$this->getPlugin()->reloadGroupPermissions();
-			$this->getPlugin()->reloadPlayerPermissions();
-			$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("reloadpermissions.success", [$args[0]]));
-		} else {
-			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[0]]));
-		}
+		$this->getPlugin()->reloadGroupPermissions();
+		$this->getPlugin()->reloadPlayerPermissions();
+		$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("reloadpermissions.success", [$args[0]]));
 		return true;
 	}
 
