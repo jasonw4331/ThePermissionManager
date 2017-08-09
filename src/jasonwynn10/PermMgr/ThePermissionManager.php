@@ -7,6 +7,7 @@ use jasonwynn10\PermMgr\event\PermissionRemoveEvent;
 use jasonwynn10\PermMgr\task\PermissionExpirationTask;
 
 use pocketmine\lang\BaseLang;
+use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionAttachment;
 use pocketmine\Player;
@@ -73,6 +74,7 @@ class ThePermissionManager extends PluginBase {
 	public function detachPlayer(Player $player) : bool {
 		$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
 		$config->setAll($this->perms[$player->getId()]->getPermissions());
+		$config->save();
 		$player->removeAttachment($this->perms[$player->getId()]);
 		unset($this->perms[$player->getId()]);
 		return true;
@@ -117,7 +119,10 @@ class ThePermissionManager extends PluginBase {
 		return true;
 	}
 
-	public function reloadPlayerPermissions() {
+	/**
+	 * @return bool
+	 */
+	public function reloadPlayerPermissions() : bool {
 		foreach($this->getServer()->getOnlinePlayers() as $player) {
 			$attachment = $player->addAttachment($this);
 			$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName(){0}.DIRECTORY_SEPARATOR."{$player->getLowerCaseName()}.yml", Config::YAML);
@@ -127,5 +132,20 @@ class ThePermissionManager extends PluginBase {
 			}
 			$this->perms[$player->getId()] = $attachment;
 		}
+		return true;
+	}
+
+	/**
+	 * @return Permission[]
+	 */
+	public function getPocketMinePerms() : array {
+		$pmPerms = [];
+		/** @var Permission $permission */
+		foreach($this->getServer()->getPluginManager()->getPermissions() as $permission) {
+			if(strpos($permission->getName(), DefaultPermissions::ROOT) !== false) {
+				$pmPerms[] = $permission;
+			}
+		}
+		return $pmPerms;
 	}
 }
