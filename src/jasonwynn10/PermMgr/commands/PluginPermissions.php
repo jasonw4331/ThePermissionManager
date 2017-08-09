@@ -6,6 +6,7 @@ use jasonwynn10\PermMgr\ThePermissionManager;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\permission\Permission;
+use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
@@ -56,5 +57,27 @@ class PluginPermissions extends PluginCommand {
 	 */
 	public function getPlugin() : Plugin {
 		return parent::getPlugin();
+	}
+
+	/**
+	 * @param Player $player
+	 *
+	 * @return array
+	 */
+	public function generateCustomCommandData(Player $player) : array {
+		$commandData = parent::generateCustomCommandData($player);
+		$names = [];
+		foreach($this->getPlugin()->getServer()->getPluginManager()->getPlugins() as $plugin) {
+			$names[] = $plugin->getName();
+		}
+		$commandData["overloads"]["default"]["input"]["parameters"] = [
+			[
+				"name" => "plugin",
+				"type" => "stringenum",
+				"optional" => true,
+				"enum_values" => $names
+			]
+		];
+		return $commandData;
 	}
 }

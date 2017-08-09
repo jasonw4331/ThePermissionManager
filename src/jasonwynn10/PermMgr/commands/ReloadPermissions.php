@@ -48,4 +48,15 @@ class ReloadPermissions extends PluginCommand {
 	public function getPlugin() : Plugin {
 		return parent::getPlugin();
 	}
+
+	/**
+	 * @param Player $player
+	 *
+	 * @return array
+	 */
+	public function generateCustomCommandData(Player $player) : array {
+		$commandData = parent::generateCustomCommandData($player);
+		$commandData["overloads"]["default"]["input"]["parameters"] = [];
+		return $commandData;
+	}
 }

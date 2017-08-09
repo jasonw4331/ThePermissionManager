@@ -58,4 +58,21 @@ class ListUserPermissions extends PluginCommand {
 	public function getPlugin() : Plugin {
 		return parent::getPlugin();
 	}
+
+	/**
+	 * @param Player $player
+	 *
+	 * @return array
+	 */
+	public function generateCustomCommandData(Player $player) : array {
+		$commandData = parent::generateCustomCommandData($player);
+		$commandData["overloads"]["default"]["input"]["parameters"] = [
+			[
+				"name" => "player",
+				"type" => "target",
+				"optional" => false
+			]
+		];
+		return $commandData;
+	}
 }
