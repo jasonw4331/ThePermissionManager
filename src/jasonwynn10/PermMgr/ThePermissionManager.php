@@ -25,14 +25,23 @@ class ThePermissionManager extends PluginBase {
 	/** @var PermissionAttachment[] $perms */
 	public $perms = [];
 
+	/** @var Config $groupsConfig */
+	private $groupsConfig = null;
+
+	/** @var string $defaultGroup */
+	private $defaultGroup = "";
+
 	/** @var BaseLang $baseLang */
 	private $baseLang = null;
 
 	public function onLoad() {
 		SpoonDetector::printSpoon($this,"spoon.txt");
 		$this->saveDefaultConfig();
-		$this->saveResource("groups.yml");
-		$lang = $this->getConfig()->get("Lang", BaseLang::FALLBACK_LANGUAGE);
+		$resource = $this->getResource("groups.yml");
+		$this->groupsConfig = new Config($this->getDataFolder()."groups.yml", Config::YAML, yaml_parse($resource, -1));
+		fclose($resource);
+		$this->loadGroups();
+		$lang = $this->getConfig()->get("lang", BaseLang::FALLBACK_LANGUAGE);
 		$this->baseLang = new BaseLang($lang,$this->getFile() . "resources/");
 	}
 
@@ -53,10 +62,52 @@ class ThePermissionManager extends PluginBase {
 		foreach($this->getServer()->getOnlinePlayers() as $player){
 			$this->detachPlayer($player);
 		}
+		$this->groupsConfig->reload();
+		$groups = $this->groupsConfig->getAll();
+		foreach($groups as $group => $data) {
+			sort($data["permissions"], SORT_NATURAL | SORT_FLAG_CASE);
+			$this->groupsConfig->set($group, $data);
+			$this->groupsConfig->save();
+		}
 	}
 
 	public function getLanguage() : BaseLang {
 		return $this->baseLang;
+	}
+
+	public function getGroups() : Config {
+		return $this->groupsConfig;
+	}
+
+	private function loadGroups() {
+		$groups = $this->groupsConfig->getAll();
+		foreach($groups as $group => $data) {
+			if(isset($data["isDefault"])) {
+				if($data["isDefault"] === true) {
+					$this->defaultGroup = $group;
+				}
+			}else{
+				$data["isDefault"] = false;
+			}
+			if(!isset($data["alias"])) {
+				$data["alias"] = '';
+			}
+			if(!isset($data["inheritance"])) {
+				$data["inheritance"] = [];
+			}
+			if(!isset($data["permissions"])) {
+				$data["permissions"] = [];
+			}else{
+				sort($data["permissions"], SORT_NATURAL | SORT_FLAG_CASE);
+			}
+			if($this->getConfig()->get("enable-multiworld-perms", false) === true) {
+				if(!isset($data["worlds"])) {
+					$data["worlds"] = [];
+				}
+			}
+			$this->groupsConfig->set($group, $data);
+			$this->groupsConfig->save();
+		}
 	}
 
 	# API
@@ -71,11 +122,42 @@ class ThePermissionManager extends PluginBase {
 			return false;
 		}
 		$attachment = $player->addAttachment($this);
-		$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
-		foreach($config->getAll() as $permission => $bool) {
-			$attachment->setPermission($permission, $bool);
-		}
 		$this->perms[$player->getId()] = $attachment;
+		$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
+		if(!isset($config->getAll()["group"])) {
+			$config->set("group", $this->defaultGroup);
+			$config->save();
+		}
+		$groupData = $this->groupsConfig->get($config->get("group", $this->defaultGroup));
+		foreach($groupData as $data) {
+			$groupPerms = $data["permissions"];
+			sort($groupPerms, SORT_NATURAL | SORT_FLAG_CASE);
+			$this->groupsConfig->setNested($config->get("group", $this->defaultGroup).".permissions", $groupPerms);
+			$this->groupsConfig->save();
+			foreach($data["permissions"] as $permission) {
+				if($permission{0} === "-") {
+					$permission = str_replace("-", "", $permission);
+					$this->removePlayerPermission($player, new Permission($permission));
+					//$attachment->setPermission($permission, false);
+				}else{
+					$this->addPlayerPermission($player, new Permission($permission));
+				}
+			}
+		}
+		$playerPerms = $config->get("permissions", []);
+		sort($playerPerms, SORT_NATURAL | SORT_FLAG_CASE);
+		$config->set("permissions", $playerPerms);
+		$config->save();
+		foreach($playerPerms as $permission) {
+			if($permission{0} === "-") {
+				$permission = str_replace("-", "", $permission);
+				$this->removePlayerPermission($player, new Permission($permission));
+				//$attachment->setPermission($permission, false);
+			}else{
+				$this->addPlayerPermission($player, new Permission($permission));
+				//$attachment->setPermission($permission, true);
+			}
+		}
 		return true;
 	}
 
@@ -85,9 +167,6 @@ class ThePermissionManager extends PluginBase {
 	 * @return bool
 	 */
 	public function detachPlayer(Player $player) : bool {
-		$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
-		$config->setAll($this->perms[$player->getId()]->getPermissions());
-		$config->save();
 		$player->removeAttachment($this->perms[$player->getId()]);
 		unset($this->perms[$player->getId()]);
 		return true;
@@ -100,7 +179,12 @@ class ThePermissionManager extends PluginBase {
 	 * @return bool
 	 */
 	public function addPlayerPermission(Player $player, Permission $permission) : bool {
-		$this->getServer()->getPluginManager()->callEvent($ev = new PermissionAddEvent($this, $permission));
+		$ev = new PermissionAddEvent($this, $permission);
+		if(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true) !== true) {
+			$ev->setCancelled();
+			$this->removePlayerPermission($player, $permission);
+		}
+		$this->getServer()->getPluginManager()->callEvent($ev);
 		if($ev->isCancelled()) {
 			return false;
 		}
@@ -123,7 +207,7 @@ class ThePermissionManager extends PluginBase {
 	 */
 	public function RemovePlayerPermission(Player $player, Permission $permission) : bool {
 		$this->getServer()->getPluginManager()->callEvent($ev = new PermissionRemoveEvent($this, $permission));
-		if($ev->isCancelled()) {
+		if($ev->isCancelled() and !(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true))) {
 			return false;
 		}
 
@@ -137,13 +221,62 @@ class ThePermissionManager extends PluginBase {
 	 */
 	public function reloadPlayerPermissions() : bool {
 		foreach($this->getServer()->getOnlinePlayers() as $player) {
+			if(!isset($this->perms[$player->getId()])) {
+				continue;
+			}
 			$attachment = $player->addAttachment($this);
+			$this->perms[$player->getId()] = $attachment;
 			$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName(){0}.DIRECTORY_SEPARATOR."{$player->getLowerCaseName()}.yml", Config::YAML);
 			//$config->reload();
-			foreach($config->getAll() as $permission => $bool) {
-				$attachment->setPermission($permission, $bool);
+			if(!isset($config->getAll()["group"])) {
+				$config->set("group", $this->defaultGroup);
+				$config->save();
 			}
-			$this->perms[$player->getId()] = $attachment;
+			$groupData = $this->groupsConfig->get($config->get("group", $this->defaultGroup));
+			foreach($groupData as $data) {
+				$groupPerms = $data["permissions"];
+				sort($groupPerms, SORT_NATURAL | SORT_FLAG_CASE);
+				$this->groupsConfig->setNested($config->get("group", $this->defaultGroup).".permissions", $groupPerms);
+				$this->groupsConfig->save();
+				foreach($data["permissions"] as $permission) {
+					if($permission{0} === "-") {
+						$permission = str_replace("-", "", $permission);
+						$this->removePlayerPermission($player, new Permission($permission));
+						//$attachment->setPermission($permission, false);
+					}else{
+						$this->addPlayerPermission($player, new Permission($permission));
+						//$attachment->setPermission($permission, true);
+					}
+				}
+			}
+			$playerPerms = $config->get("permissions", []);
+			sort($playerPerms, SORT_NATURAL | SORT_FLAG_CASE);
+			$config->set("permissions", $playerPerms);
+			$config->save();
+			foreach($playerPerms as $permission) {
+				if($permission{0} === "-") {
+					$permission = str_replace("-", "", $permission);
+					$this->removePlayerPermission($player, new Permission($permission));
+					//$attachment->setPermission($permission, false);
+				}else{
+					$this->addPlayerPermission($player, new Permission($permission));
+					//$attachment->setPermission($permission, true);
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function reloadGroupPermissions() : bool {
+		$this->getGroups()->reload();
+		$groups = $this->groupsConfig->getAll();
+		foreach($groups as $group => $data) {
+			sort($data["permissions"], SORT_NATURAL | SORT_FLAG_CASE);
+			$this->groupsConfig->set($group, $data);
+			$this->groupsConfig->save();
 		}
 		return true;
 	}

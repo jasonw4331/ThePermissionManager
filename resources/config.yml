@@ -1,6 +1,6 @@
 # Set the default language
 # - eng
-Lang: eng
+lang: eng
 
 # Disable /op permission for all players
 # - true / false

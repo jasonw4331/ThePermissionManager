@@ -44,7 +44,7 @@ class ListUserPermissions extends PluginCommand {
 				if($bool)
 					$permissions[] = $permission;
 			}
-			sort($permissions,SORT_FLAG_CASE | SORT_NATURAL);
+			sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
 			foreach($permissions as $permission) {
 				$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("listuserpermissions.list", [$permission]));
 			}

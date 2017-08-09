@@ -5,7 +5,6 @@ use jasonwynn10\PermMgr\ThePermissionManager;
 
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
-use pocketmine\permission\Permission;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
@@ -40,9 +39,25 @@ class SetUserPermission extends PluginCommand {
 		}
 		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
 		if($player instanceof Player) {
-			$perm = new Permission($args[1]);
-			$this->getPlugin()->addPlayerPermission($player, $perm);
-			$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$args[0]]));
+			if(isset($args[1])) {
+				if($args[1]{0} == "-") {
+					$permString = str_replace("-","",$args[1]);
+					if($permString == "*") {
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->removePlayerPermission($player, $permission);
+						}
+					}
+				}else{
+					if($args[1] == "*") {
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->addPlayerPermission($player, $permission);
+						}
+					}
+				}
+				$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$args[0]]));
+			}else{
+				return false;
+			}
 		} else {
 			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[0]]));
 		}

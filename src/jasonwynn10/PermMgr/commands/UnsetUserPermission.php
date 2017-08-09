@@ -40,8 +40,15 @@ class UnsetUserPermission extends PluginCommand {
 		}
 		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
 		if($player instanceof Player) {
-			$perm = new Permission($args[1]);
-			$this->getPlugin()->addPlayerPermission($player, $perm);
+			$permString = str_replace("-","", $args[1]);
+			if($permString === "*") {
+				foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+					$this->getPlugin()->removePlayerPermission($player, $permission);
+				}
+			}else{
+				$perm = new Permission($args[1]);
+				$this->getPlugin()->removePlayerPermission($player, $perm);
+			}
 			$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetuserpermission.success", [$args[0]]));
 		} else {
 			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[0]]));
