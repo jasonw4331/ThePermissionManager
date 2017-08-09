@@ -31,7 +31,9 @@ class ListUserPermissions extends PluginCommand {
 	 * @return bool
 	 */
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
-		parent::execute($sender, $commandLabel, $args);
+		if(!$this->testPermission($sender)) {
+			return true;
+		}
 		if(empty($args)) {
 			return false;
 		}
@@ -66,11 +68,23 @@ class ListUserPermissions extends PluginCommand {
 	 */
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
+		$worlds = [];
+		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
+			if(!$level->isClosed()) {
+				$worlds[] = $level->getName();
+			}
+		}
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
 			[
 				"name" => "player",
 				"type" => "target",
 				"optional" => false
+			],
+			[
+				"name" => "world",
+				"type" => "stringenum",
+				"optional" => true,
+				"enum_values" => $worlds
 			]
 		];
 		return $commandData;

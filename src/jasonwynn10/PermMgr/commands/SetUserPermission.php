@@ -32,7 +32,9 @@ class SetUserPermission extends PluginCommand {
 	 * @return bool
 	 */
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
-		parent::execute($sender, $commandLabel, $args);
+		if(!$this->testPermission($sender)) {
+			return true;
+		}
 		if(empty($args)) {
 			return false;
 		}
