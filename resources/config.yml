@@ -1,0 +1,18 @@
+# Set the default language
+# - eng
+Lang: eng
+
+# Disable /op permission for all players
+# - true / false
+disable-op: true
+
+# Setting this option will allow you to use per-world permissions
+# - true / false
+enable-multiworld-perms: false
+
+# Ranks that can only be set on console
+# Also, users with a superadmin-rank can only have their rank changed by the console
+# - array
+superadmin-ranks:
+ - Owner
+ - CoOwner

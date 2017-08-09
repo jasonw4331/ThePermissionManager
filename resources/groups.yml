@@ -1,0 +1,48 @@
+---
+Guest:
+  alias: 'gst'
+  isDefault: true
+  inheritance: []
+  permissions:
+  - -pocketmine.command.me
+  - pocketmine.command.list
+  worlds: []
+Moderator:
+  alias: 'mod'
+  inheritance:
+   - Guest
+  permissions:
+  - pocketmine.broadcast
+  - pocketmine.command.gamemode
+  - pocketmine.command.give
+  - pocketmine.command.kick
+  - pocketmine.command.teleport
+  - pocketmine.command.time
+  worlds: []
+Admin:
+  alias: 'adm'
+  inheritance:
+  - Moderator
+  permissions:
+  - pocketmine.broadcast
+  - pocketmine.command.gamemode
+  - pocketmine.command.give
+  - pocketmine.command.kick
+  - pocketmine.command.teleport
+  - pocketmine.command.time
+  worlds: []
+CoOwner:
+  alias: 'cwr'
+  inheritance:
+  - Admin
+  permissions:
+  - pocketmine.command
+  worlds: []
+Owner:
+  alias: 'owr'
+  inheritance:
+  - CoOwner
+  permissions:
+  - "*"
+  worlds: []
+...
