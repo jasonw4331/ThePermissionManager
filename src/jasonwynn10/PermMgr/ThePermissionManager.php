@@ -8,6 +8,8 @@ use jasonwynn10\PermMgr\commands\SetUserPermission;
 use jasonwynn10\PermMgr\commands\UnsetUserPermission;
 use jasonwynn10\PermMgr\event\EventListener;
 use jasonwynn10\PermMgr\event\PermissionAddEvent;
+use jasonwynn10\PermMgr\event\PermissionAttachEvent;
+use jasonwynn10\PermMgr\event\PermissionDetachEvent;
 use jasonwynn10\PermMgr\event\PermissionRemoveEvent;
 use jasonwynn10\PermMgr\task\PermissionExpirationTask;
 
@@ -123,6 +125,7 @@ class ThePermissionManager extends PluginBase {
 		}
 		$attachment = $player->addAttachment($this);
 		$this->perms[$player->getId()] = $attachment;
+		$this->getServer()->getPluginManager()->callEvent(new PermissionAttachEvent($this));
 		$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
 		if(!isset($config->getAll()["group"])) {
 			$config->set("group", $this->defaultGroup);
@@ -167,6 +170,7 @@ class ThePermissionManager extends PluginBase {
 	 * @return bool
 	 */
 	public function detachPlayer(Player $player) : bool {
+		$this->getServer()->getPluginManager()->callEvent(new PermissionDetachEvent($this));
 		$player->removeAttachment($this->perms[$player->getId()]);
 		unset($this->perms[$player->getId()]);
 		return true;

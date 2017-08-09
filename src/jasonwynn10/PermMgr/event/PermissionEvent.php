@@ -7,7 +7,8 @@ use pocketmine\event\plugin\PluginEvent;
 use pocketmine\permission\Permission;
 
 class PermissionEvent extends PluginEvent {
-	protected $permission;
+	/** @var Permission|null $permission */
+	protected $permission = null;
 
 	/**
 	 * PermissionEvent constructor.
@@ -15,12 +16,12 @@ class PermissionEvent extends PluginEvent {
 	 * @param ThePermissionManager $plugin
 	 * @param Permission $permission
 	 */
-	public function __construct(ThePermissionManager $plugin, Permission $permission) {
+	public function __construct(ThePermissionManager $plugin, Permission $permission = null) {
 		parent::__construct($plugin);
 		$this->permission = $permission;
 	}
 
-	public function getPermission() : Permission {
+	public function getPermission() {
 		return $this->permission;
 	}
 
