@@ -16,11 +16,11 @@ class ListUserPermissions extends PluginCommand {
 	 * @param ThePermissionManager $plugin
 	 */
 	public function __construct(ThePermissionManager $plugin) {
-		parent::__construct($plugin->getLanguage()->get("listuserpermission.name"), $plugin);
-		$this->setPermission("PermManager.command.listuserpermission");
-		$this->setUsage($plugin->getLanguage()->get("listuserpermission.usage"));
-		$this->setAliases([$plugin->getLanguage()->get("listuserpermission.usage")]);
-		$this->setDescription($plugin->getLanguage()->get("listuserpermission.desc"));
+		parent::__construct($plugin->getLanguage()->get("listuserpermissions.name"), $plugin);
+		$this->setPermission("PermManager.command.listuserpermissions");
+		$this->setUsage($plugin->getLanguage()->get("listuserpermissions.usage"));
+		$this->setAliases([$plugin->getLanguage()->get("listuserpermissions.usage")]);
+		$this->setDescription($plugin->getLanguage()->get("listuserpermissions.desc"));
 	}
 
 	/**
@@ -44,7 +44,7 @@ class ListUserPermissions extends PluginCommand {
 			}
 			sort($permissions,SORT_FLAG_CASE | SORT_NATURAL);
 			foreach($permissions as $permission) {
-				$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("listuserpermission.list", [$permission]));
+				$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("listuserpermissions.list", [$permission]));
 			}
 		} else {
 			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[0]]));
