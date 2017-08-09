@@ -21,7 +21,7 @@ class PluginPermissions extends PluginCommand {
 		parent::__construct($plugin->getLanguage()->get("pluginpermissions.name"), $plugin);
 		$this->setPermission("PermManager.command.pluginpermissions");
 		$this->setUsage($plugin->getLanguage()->get("pluginpermissions.usage"));
-		$this->setAliases([$plugin->getLanguage()->get("pluginpermissions.usage")]);
+		$this->setAliases([$plugin->getLanguage()->get("pluginpermissions.alias")]);
 		$this->setDescription($plugin->getLanguage()->get("pluginpermissions.desc"));
 	}
 

@@ -19,7 +19,7 @@ class ReloadPermissions extends PluginCommand {
 		parent::__construct($plugin->getLanguage()->get("reloadpermissions.name"), $plugin);
 		$this->setPermission("PermManager.command.reloadpermissions");
 		$this->setUsage($plugin->getLanguage()->get("reloadpermissions.usage"));
-		$this->setAliases([$plugin->getLanguage()->get("reloadpermissions.usage")]);
+		$this->setAliases([$plugin->getLanguage()->get("reloadpermissions.alias")]);
 		$this->setDescription($plugin->getLanguage()->get("reloadpermissions.desc"));
 	}
 

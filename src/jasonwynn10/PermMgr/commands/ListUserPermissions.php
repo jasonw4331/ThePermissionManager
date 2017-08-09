@@ -19,7 +19,7 @@ class ListUserPermissions extends PluginCommand {
 		parent::__construct($plugin->getLanguage()->get("listuserpermissions.name"), $plugin);
 		$this->setPermission("PermManager.command.listuserpermissions");
 		$this->setUsage($plugin->getLanguage()->get("listuserpermissions.usage"));
-		$this->setAliases([$plugin->getLanguage()->get("listuserpermissions.usage")]);
+		$this->setAliases([$plugin->getLanguage()->get("listuserpermissions.alias")]);
 		$this->setDescription($plugin->getLanguage()->get("listuserpermissions.desc"));
 	}
 
