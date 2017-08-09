@@ -40,7 +40,7 @@ class ThePermissionManager extends PluginBase {
 		SpoonDetector::printSpoon($this,"spoon.txt");
 		$this->saveDefaultConfig();
 		$resource = $this->getResource("groups.yml");
-		$this->groupsConfig = new Config($this->getDataFolder()."groups.yml", Config::YAML, yaml_parse($resource, -1));
+		$this->groupsConfig = new Config($this->getDataFolder()."groups.yml", Config::YAML, yaml_parse(stream_get_contents($resource), -1));
 		fclose($resource);
 		$this->loadGroups();
 		$lang = $this->getConfig()->get("lang", BaseLang::FALLBACK_LANGUAGE);
