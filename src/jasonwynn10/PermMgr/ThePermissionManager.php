@@ -133,7 +133,7 @@ class ThePermissionManager extends PluginBase {
 			$config->set("group", $this->defaultGroup);
 			$config->save();
 		}
-		$groupData = $this->groupsConfig->get($config->get("group", $this->defaultGroup));
+		$groupData = $this->groupsConfig->get($config->get("group", $this->defaultGroup), []);
 		foreach($groupData as $data) {
 			$groupPerms = $data["permissions"];
 			sort($groupPerms, SORT_NATURAL | SORT_FLAG_CASE);
@@ -232,7 +232,7 @@ class ThePermissionManager extends PluginBase {
 			}
 			$attachment = $player->addAttachment($this);
 			$this->perms[$player->getId()] = $attachment;
-			$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName(){0}.DIRECTORY_SEPARATOR."{$player->getLowerCaseName()}.yml", Config::YAML);
+			$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
 			//$config->reload();
 			if(!isset($config->getAll()["group"])) {
 				$config->set("group", $this->defaultGroup);
