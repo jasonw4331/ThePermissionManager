@@ -1,6 +1,11 @@
 <?php
 namespace jasonwynn10\PermMgr;
 
+use jasonwynn10\PermMgr\commands\ListUserPermissions;
+use jasonwynn10\PermMgr\commands\PluginPermissions;
+use jasonwynn10\PermMgr\commands\ReloadPermissions;
+use jasonwynn10\PermMgr\commands\SetUserPermission;
+use jasonwynn10\PermMgr\commands\UnsetUserPermission;
 use jasonwynn10\PermMgr\event\EventListener;
 use jasonwynn10\PermMgr\event\PermissionAddEvent;
 use jasonwynn10\PermMgr\event\PermissionRemoveEvent;
@@ -34,6 +39,14 @@ class ThePermissionManager extends PluginBase {
 	public function onEnable() {
 		new EventListener($this);
 		$this->getServer()->getScheduler()->scheduleRepeatingTask(new PermissionExpirationTask($this), 20);
+
+		$this->getServer()->getCommandMap()->registerAll(self::class, [
+			new SetUserPermission($this),
+			new UnsetUserPermission($this),
+			new ReloadPermissions($this),
+			new PluginPermissions($this),
+			new ListUserPermissions($this)
+		]);
 	}
 
 	public function onDisable() {
