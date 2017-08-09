@@ -39,9 +39,49 @@ class ThePermissionManager extends PluginBase {
 	public function onLoad() {
 		SpoonDetector::printSpoon($this,"spoon.txt");
 		$this->saveDefaultConfig();
-		$resource = $this->getResource("groups.yml");
-		$this->groupsConfig = new Config($this->getDataFolder()."groups.yml", Config::YAML, yaml_parse(stream_get_contents($resource), -1));
-		fclose($resource);
+		$this->saveResource("groups.yml");
+		$this->groupsConfig = new Config($this->getDataFolder()."groups.yml", Config::YAML, [
+			"Guest" => [
+				"alias" => "gst",
+				"isDefault" => true,
+				"inheritance" => [],
+				"permissions" => []
+			],
+			"Moderator" => [
+				"alias" => "mod",
+				"isDefault" => false,
+				"inheritance" => [
+					"Guest"
+				],
+				"permissions" => []
+			],
+			"Admin" => [
+				"alias" => "adm",
+				"isDefault" => false,
+				"inheritance" => [
+					"Moderator"
+				],
+				"permissions" => []
+			],
+			"CoOwner" => [
+				"alias" => "cwn",
+				"isDefault" => false,
+				"inheritance" => [
+					"Admin"
+				],
+				"permissions" => []
+			],
+			"Owner" => [
+				"alias" => "own",
+				"isDefault" => false,
+				"inheritance" => [
+					"CoOwner"
+				],
+				"permissions" => [
+					"*"
+				]
+			]
+		]);
 		$this->loadGroups();
 		$lang = $this->getConfig()->get("lang", BaseLang::FALLBACK_LANGUAGE);
 		$this->baseLang = new BaseLang($lang,$this->getFile() . "resources/");
@@ -238,7 +278,7 @@ class ThePermissionManager extends PluginBase {
 				$config->set("group", $this->defaultGroup);
 				$config->save();
 			}
-			$groupData = $this->groupsConfig->get($config->get("group", $this->defaultGroup));
+			$groupData = $this->groupsConfig->get($config->get("group", $this->defaultGroup), []);
 			foreach($groupData as $data) {
 				$groupPerms = $data["permissions"];
 				sort($groupPerms, SORT_NATURAL | SORT_FLAG_CASE);
