@@ -30,12 +30,11 @@ class ReloadPermissions extends PluginCommand {
 	 *
 	 * @return bool
 	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args) {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
 		$this->getPlugin()->reloadGroupPermissions();
-		$this->getPlugin()->reloadPlayerPermissions();
 		$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("reloadpermissions.success"));
 		return true;
 	}

@@ -17,11 +17,11 @@ class UnsetGroupPermission extends PluginCommand {
 	 * @param ThePermissionManager $plugin
 	 */
 	public function __construct(ThePermissionManager $plugin){
-		parent::__construct($plugin->getLanguage()->get("unsetgrouppermission.name"), $plugin);
-		$this->setPermission("PermManager.command.unsetgrouppermission");
-		$this->setUsage($plugin->getLanguage()->get("unsetgrouppermission.usage"));
-		$this->setAliases([$plugin->getLanguage()->get("unsetgrouppermission.alias")]);
-		$this->setDescription($plugin->getLanguage()->get("unsetgrouppermission.desc"));
+		parent::__construct($plugin->getLanguage()->get("ununsetgrouppermission.name"), $plugin);
+		$this->setPermission("PermManager.command.ununsetgrouppermission");
+		$this->setUsage($plugin->getLanguage()->get("ununsetgrouppermission.usage"));
+		$this->setAliases([$plugin->getLanguage()->get("ununsetgrouppermission.alias")]);
+		$this->setDescription($plugin->getLanguage()->get("ununsetgrouppermission.desc"));
 	}
 
 	/**
@@ -31,29 +31,39 @@ class UnsetGroupPermission extends PluginCommand {
 	 *
 	 * @return bool
 	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args) {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
 		if(empty($args)) {
 			return false;
 		}
-		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
-		if($player instanceof Player) {
-			$permString = str_replace("-","", $args[1]);
+		$group = $args[0];
+		if(!in_array(array_keys($this->getPlugin()->getGroups()->getAll()), $group)) {
+			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
+			return true;
+		}
+		if(isset($args[1])) {
+			$permString = $args[1];
+			$permString = str_replace("-","", $permString);
 			if($permString === "*") {
 				foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-					$this->getPlugin()->removePlayerPermission($player, $permission);
+					$this->getPlugin()->removeGroupPermission($group, $permission);
 				}
+				$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetgrouppermission.success", [$group]));
+				return true;
 			}else{
-				$perm = new Permission($args[1]);
-				$this->getPlugin()->removePlayerPermission($player, $perm);
+				$permission = new Permission($permString);
+				if(!$this->getPlugin()->removeGroupPermission($group, $permission)) {
+					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+				}else{
+					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetgrouppermission.success", [$group]));
+				}
+				return true;
 			}
-			$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetgrouppermission.success", [$args[0]]));
-		} else {
-			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[0]]));
+		}else{
+			return false;
 		}
-		return true;
 	}
 
 	/**
@@ -71,7 +81,7 @@ class UnsetGroupPermission extends PluginCommand {
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
 		$groups = [];
-		foreach($this->getPlugin()->getGroups() as $group => $data) {
+		foreach($this->getPlugin()->getGroups()->getAll() as $group => $data) {
 			$groups[] = $group;
 		}
 		$worlds = [];

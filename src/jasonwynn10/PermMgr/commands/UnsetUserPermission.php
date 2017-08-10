@@ -31,27 +31,39 @@ class UnsetUserPermission extends PluginCommand {
 	 *
 	 * @return bool
 	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args){
+	public function execute(CommandSender $sender, string $commandLabel, array $args) {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
 		if(empty($args)) {
 			return false;
 		}
+		var_dump($args[0]);
 		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
 		if($player instanceof Player) {
-			$permString = str_replace("-","", $args[1]);
-			if($permString === "*") {
-				foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-					$this->getPlugin()->removePlayerPermission($player, $permission);
+			if(isset($args[1])) {
+				$permString = $args[1];
+				$permString = str_replace("-","", $permString);
+				if($permString === "*") {
+					foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+						$this->getPlugin()->removePlayerPermission($player, $permission, false);
+					}
+					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetuserpermission.success", [$player->getName()]));
+					return true;
+				}else{
+					$permission = new Permission($permString);
+					if(!$this->getPlugin()->removePlayerPermission($player, $permission, false)) {
+						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+					}else{
+						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetuserpermission.success", [$player->getName()]));
+					}
+					return true;
 				}
 			}else{
-				$perm = new Permission($args[1]);
-				$this->getPlugin()->removePlayerPermission($player, $perm);
+				return false;
 			}
-			$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetuserpermission.success", [$args[0]]));
 		} else {
-			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[0]]));
+			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$player->getName()]));
 		}
 		return true;
 	}
