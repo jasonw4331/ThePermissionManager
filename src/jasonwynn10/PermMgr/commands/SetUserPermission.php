@@ -39,7 +39,6 @@ class SetUserPermission extends PluginCommand {
 		if(empty($args)) {
 			return false;
 		}
-		var_dump($args[0]);
 		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
 		if($player instanceof Player) {
 			if(isset($args[1])) {
@@ -79,7 +78,7 @@ class SetUserPermission extends PluginCommand {
 				return false;
 			}
 		} else {
-			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$player->getName()]));
+			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[0]]));
 			return true;
 		}
 	}
@@ -98,17 +97,24 @@ class SetUserPermission extends PluginCommand {
 	 */
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
+		$players = [];
+		foreach($this->getPlugin()->getServer()->getOnlinePlayers() as $player) {
+			$players[] = $player->getName();
+		}
+		sort($players, SORT_FLAG_CASE);
 		$worlds = [];
 		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
 			if(!$level->isClosed()) {
 				$worlds[] = $level->getName();
 			}
 		}
+		sort($worlds, SORT_FLAG_CASE);
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
 			[
 				"name" => "player",
-				"type" => "target",
-				"optional" => false
+				"type" => "stringenum",
+				"optional" => false,
+				"enum_values" => $players
 			],
 			[
 				"name" => "permission",

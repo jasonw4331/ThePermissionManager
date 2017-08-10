@@ -85,12 +85,14 @@ class UnsetGroupPermission extends PluginCommand {
 		foreach($this->getPlugin()->getGroups()->getAll() as $group => $data) {
 			$groups[] = $group;
 		}
+		sort($groups, SORT_FLAG_CASE);
 		$worlds = [];
 		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
 			if(!$level->isClosed()) {
 				$worlds[] = $level->getName();
 			}
 		}
+		sort($worlds, SORT_FLAG_CASE);
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
 			[
 				"name" => "group",

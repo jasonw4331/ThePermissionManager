@@ -42,7 +42,7 @@ class PluginPermissions extends PluginCommand {
 		}
 		$plugin = (strtolower($args[0]) === 'pocketmine' or strtolower($args[0]) === 'pmmp') ? 'pocketmine' : $this->getPlugin()->getServer()->getPluginManager()->getPlugin($args[0]);
 		/** @var Permission[] $permissionObjects */
-		$permissionObjects = ($plugin instanceof PluginBase) ? $plugin->getDescription()->getPermissions() : $this->getPlugin()->getPocketMinePerms();
+		$permissionObjects = ($plugin instanceof PluginBase) ? $plugin->getDescription()->getPermissions() : $this->getPlugin()->getPocketMinePermissions();
 		/** @var string[] $permissions */
 		$permissions = [];
 		foreach($permissionObjects as $permission) {

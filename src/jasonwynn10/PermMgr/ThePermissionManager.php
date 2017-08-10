@@ -111,7 +111,7 @@ class ThePermissionManager extends PluginBase {
 		foreach($this->getServer()->getPluginManager()->getPermissions() as $permission) {
 			$permissions[] = $permission->getName();
 		}
-		$permissions = implode("\n", $permissions);
+		$permissions = implode(PHP_EOL, $permissions);
 		@file_put_contents($this->getDataFolder()."Permission_List.txt", $permissions);
 		foreach($this->getServer()->getOnlinePlayers() as $player) {
 			$this->detachPlayer($player);
@@ -186,17 +186,18 @@ class ThePermissionManager extends PluginBase {
 			$config->save();
 		}
 		$groupData = $this->groupsConfig->get($config->get("group", $this->defaultGroup), []);
-		foreach($groupData as $data) {
-			$groupPerms = $data["permissions"];
-			sort($groupPerms, SORT_NATURAL | SORT_FLAG_CASE);
-			$this->groupsConfig->setNested($config->get("group", $this->defaultGroup).".permissions", $groupPerms);
-			$this->groupsConfig->save();
-			foreach($data["permissions"] as $permission) {
-				if($this->sortPermissionConfigStrings($permission)) {
-					$this->addPlayerPermission($player, new Permission($permission), true);
-				}else{
-					$this->removePlayerPermission($player, new Permission($permission), true);
-				}
+		$groupPerms = $groupData["permissions"];
+		sort($groupPerms, SORT_NATURAL | SORT_FLAG_CASE);
+		$this->groupsConfig->setNested($config->get("group", $this->defaultGroup).".permissions", $groupPerms);
+		$this->groupsConfig->save();
+		$parentGroupPerms = $this->getInheritedPermissions($config->get("group", $this->defaultGroup));
+		$groupPerms = array_merge($groupPerms, $parentGroupPerms);
+		sort($groupPerms, SORT_NATURAL | SORT_FLAG_CASE);
+		foreach($groupPerms as $permission) {
+			if($this->sortPermissionConfigStrings($permission)) {
+				$this->addPlayerPermission($player, new Permission($permission), true);
+			}else{
+				$this->removePlayerPermission($player, new Permission($permission), true);
 			}
 		}
 		$playerPerms = $config->get("permissions", []);
@@ -318,7 +319,7 @@ class ThePermissionManager extends PluginBase {
 		if($ev->isCancelled()) {
 			return false;
 		}
-		$data = $this->getGroups()->getAll()[$group];
+		$data = $this->groupsConfig->getAll()[$group];
 		if(($key = array_search("-".$ev->getPermission()->getName(), $data["permissions"])) !== false) {
 			$data["permissions"][$key] = $ev->getPermission()->getName();
 		}elseif(($key = array_search($ev->getPermission()->getName(), $data["permissions"])) !== false) {
@@ -327,9 +328,10 @@ class ThePermissionManager extends PluginBase {
 			$data["permissions"][] = $ev->getPermission()->getName();
 		}
 		sort($data["permissions"], SORT_NATURAL | SORT_FLAG_CASE);
-		$this->getGroups()->set($group, $data);
-		$this->getGroups()->save();
+		$this->groupsConfig->set($group, $data);
+		$this->groupsConfig->save();
 		$this->reloadGroupPermissions();
+		$this->reloadPlayerPermissions();
 		return true;
 	}
 
@@ -345,7 +347,7 @@ class ThePermissionManager extends PluginBase {
 			return false;
 		}
 
-		$data = $this->getGroups()->getAll()[$group];
+		$data = $this->groupsConfig->getAll()[$group];
 		if(($key = array_search("-".$ev->getPermission()->getName(), $data["permissions"])) !== false) {
 			return false;
 		}elseif(($key = array_search($ev->getPermission()->getName(), $data["permissions"])) !== false) {
@@ -354,51 +356,35 @@ class ThePermissionManager extends PluginBase {
 			$data["permissions"][] = "-".$ev->getPermission()->getName();
 		}
 		sort($data["permissions"], SORT_NATURAL | SORT_FLAG_CASE);
-		$this->getGroups()->set($group, $data);
-		$this->getGroups()->save();
+		$this->groupsConfig->set($group, $data);
+		$this->groupsConfig->save();
 		$this->reloadGroupPermissions();
+		$this->reloadPlayerPermissions();
 		return true;
 	}
 
+
 	/**
+	 * @param Player[] $players
+	 *
 	 * @return bool
 	 */
-	public function reloadPlayerPermissions() : bool {
-		foreach($this->getServer()->getOnlinePlayers() as $player) {
+	public function reloadPlayerPermissions(array $players = []) : bool {
+		$players = !empty($players) ? $players : $this->getServer()->getOnlinePlayers();
+		foreach($players as $player) {
 			if(!isset($this->perms[$player->getId()])) {
 				continue;
 			}
+			$player->removeAttachment($this->perms[$player->getId()]);
+			unset($this->perms[$player->getId()]);
 			$attachment = $player->addAttachment($this);
 			$this->perms[$player->getId()] = $attachment;
-			$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
-			//$config->reload();
-			if(!isset($config->getAll()["group"])) {
-				$config->set("group", $this->defaultGroup);
-				$config->save();
-			}
-			$groupData = $this->groupsConfig->get($config->get("group", $this->defaultGroup), []);
-			foreach($groupData as $data) {
-				$groupPerms = $data["permissions"];
-				sort($groupPerms, SORT_NATURAL | SORT_FLAG_CASE);
-				$this->groupsConfig->setNested($config->get("group", $this->defaultGroup).".permissions", $groupPerms);
-				$this->groupsConfig->save();
-				foreach($data["permissions"] as $permission) {
-					if($this->sortPermissionConfigStrings($permission)) {
-						$this->addPlayerPermission($player, new Permission($permission), true);
-					}else{
-						$this->removePlayerPermission($player, new Permission($permission), true);
-					}
-				}
-			}
-			$playerPerms = $config->get("permissions", []);
-			sort($playerPerms, SORT_NATURAL | SORT_FLAG_CASE);
-			$config->set("permissions", $playerPerms);
-			$config->save();
-			foreach($playerPerms as $permission) {
+
+			foreach($this->getPlayerPermissions($player) as $permission) {
 				if($this->sortPermissionConfigStrings($permission)) {
-					$this->addPlayerPermission($player, new Permission($permission), false);
+					$this->addPlayerPermission($player, new Permission($permission), true);
 				}else{
-					$this->removePlayerPermission($player, new Permission($permission), false);
+					$this->removePlayerPermission($player, new Permission($permission), true);
 				}
 			}
 		}
@@ -406,17 +392,27 @@ class ThePermissionManager extends PluginBase {
 	}
 
 	/**
+	 * @param string[] $groups
+	 *
 	 * @return bool
 	 */
-	public function reloadGroupPermissions() : bool {
-		$this->getGroups()->reload();
-		$groups = $this->groupsConfig->getAll();
-		foreach($groups as $group => $data) {
-			sort($data["permissions"], SORT_NATURAL | SORT_FLAG_CASE);
-			$this->groupsConfig->set($group, $data);
-			$this->groupsConfig->save();
+	public function reloadGroupPermissions(array $groups = []) : bool {
+		$this->groupsConfig->reload();
+		if(!empty($groups)) {
+			foreach($groups as $group) {
+				$data = $this->groupsConfig->getAll()[$group];
+				sort($data["permissions"], SORT_NATURAL | SORT_FLAG_CASE);
+				$this->groupsConfig->set($group, $data);
+				$this->groupsConfig->save();
+			}
+		}else{
+			$groups = $this->groupsConfig->getAll();
+			foreach($groups as $group => $data) {
+				sort($data["permissions"], SORT_NATURAL | SORT_FLAG_CASE);
+				$this->groupsConfig->set($group, $data);
+				$this->groupsConfig->save();
+			}
 		}
-		$this->reloadPlayerPermissions();
 		return true;
 	}
 
@@ -435,9 +431,22 @@ class ThePermissionManager extends PluginBase {
 	}
 
 	/**
+	 * @param Player $player
+	 * @param string $group
+	 *
+	 * @return bool
+	 */
+	public function setPlayerGroup(Player $player, string $group) : bool {
+		$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
+		$config->set("group", $group);
+		$this->reloadPlayerPermissions([$player]);
+		return $config->save();
+	}
+
+	/**
 	 * @return Permission[]
 	 */
-	public function getPocketMinePerms() : array {
+	public function getPocketMinePermissions() : array {
 		$pmPerms = [];
 		/** @var Permission $permission */
 		foreach($this->getServer()->getPluginManager()->getPermissions() as $permission) {
@@ -446,5 +455,57 @@ class ThePermissionManager extends PluginBase {
 			}
 		}
 		return $pmPerms;
+	}
+
+	/**
+	 * @param Player $player
+	 *
+	 * @return string[] includes set and unset permissions from config
+	 */
+	public function getPlayerPermissions(Player $player) : array {
+		$permissions = [];
+		$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
+		$config->reload();
+		foreach($config->getAll()["permissions"] as $permission) {
+			$permissions[] = $permission;
+		}
+		foreach($this->getGroupPermissions($config->get("group", $this->defaultGroup)) as $permission) {
+			$permissions[] = $permission;
+		}
+		return array_unique($permissions, SORT_STRING);
+	}
+
+	/**
+	 * @param string $group
+	 *
+	 * @return string[] includes set and unset permissions from config
+	 */
+	public function getGroupPermissions(string $group) : array {
+		$this->groupsConfig->reload();
+		$permissions = [];
+		foreach($this->getInheritedPermissions($group) as $permission) {
+			$permissions[] = $permission;
+		}
+		foreach($this->groupsConfig->getAll()[$group]["permissions"] as $permission) {
+			$permissions[] = $permission;
+		}
+		return array_unique($permissions, SORT_STRING);
+	}
+
+	/**
+	 * @param string $group
+	 *
+	 * @return string[] includes set and unset permissions from config
+	 */
+	public function getInheritedPermissions(string $group) : array {
+		$this->groupsConfig->reload();
+		$permissions = [];
+		foreach($this->groupsConfig->getAll()[$group]["inheritance"] as $parentGroup) {
+			$parentGroupData = $this->getGroups()->getAll()[$parentGroup];
+			foreach($parentGroupData["permissions"] as $parentPermission) {
+				$permissions[] = $parentPermission;
+			}
+		}
+		return array_unique($permissions, SORT_STRING);
 	}
 }

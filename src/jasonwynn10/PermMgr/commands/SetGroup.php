@@ -9,18 +9,13 @@ use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
 
-class ListUserPermissions extends PluginCommand {
-	/**
-	 * ListUserPermissions constructor.
-	 *
-	 * @param ThePermissionManager $plugin
-	 */
+class SetGroup extends PluginCommand {
 	public function __construct(ThePermissionManager $plugin) {
-		parent::__construct($plugin->getLanguage()->get("listuserpermissions.name"), $plugin);
-		$this->setPermission("PermManager.command.listuserpermissions");
-		$this->setUsage($plugin->getLanguage()->get("listuserpermissions.usage"));
-		$this->setAliases([$plugin->getLanguage()->get("listuserpermissions.alias")]);
-		$this->setDescription($plugin->getLanguage()->get("listuserpermissions.desc"));
+		parent::__construct($plugin->getLanguage()->get("setgroup.name"), $plugin);
+		$this->setPermission("PermManager.command.setgroup");
+		$this->setUsage($plugin->getLanguage()->get("setgroup.usage"));
+		$this->setAliases([$plugin->getLanguage()->get("setgroup.alias")]);
+		$this->setDescription($plugin->getLanguage()->get("setgroup.desc"));
 		$this->setPermissionMessage($plugin->getLanguage()->get("nopermission"));
 	}
 
@@ -40,17 +35,23 @@ class ListUserPermissions extends PluginCommand {
 		}
 		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
 		if($player instanceof Player) {
-			$permissions = [];
-			foreach($this->getPlugin()->getPlayerPermissions($player) as $permission) {
-				if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
-					$permissions[] = $permission;
+			if(isset($args[1])) {
+				$group = $args[1];
+				if(!in_array($group, array_keys($this->getPlugin()->getGroups()->getAll()))) {
+					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
+					return true;
 				}
+				if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
+					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+					return true;
+				}else{
+					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgroup.success", [$player->getName(), $group]));
+					return true;
+				}
+			}else{
+				return false;
 			}
-			sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
-			foreach($permissions as $permission) {
-				$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("listuserpermissions.list", [$permission]));
-			}
-		} else {
+		}else{
 			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[0]]));
 		}
 		return true;
@@ -75,13 +76,11 @@ class ListUserPermissions extends PluginCommand {
 			$players[] = $player->getName();
 		}
 		sort($players, SORT_FLAG_CASE);
-		$worlds = [];
-		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
-			if(!$level->isClosed()) {
-				$worlds[] = $level->getName();
-			}
+		$groups = [];
+		foreach($this->getPlugin()->getGroups()->getAll() as $group => $data) {
+			$groups[] = $group;
 		}
-		sort($worlds, SORT_FLAG_CASE);
+		sort($groups, SORT_FLAG_CASE);
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
 			[
 				"name" => "player",
@@ -90,10 +89,10 @@ class ListUserPermissions extends PluginCommand {
 				"enum_values" => $players
 			],
 			[
-				"name" => "world",
+				"name" => "group",
 				"type" => "stringenum",
-				"optional" => true,
-				"enum_values" => $worlds
+				"optional" => false,
+				"enum_values" => $groups
 			]
 		];
 		$commandData["permission"] = $this->getPermission();

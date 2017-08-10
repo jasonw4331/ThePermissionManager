@@ -36,6 +36,7 @@ class ReloadPermissions extends PluginCommand {
 			return true;
 		}
 		$this->getPlugin()->reloadGroupPermissions();
+		$this->getPlugin()->reloadPlayerPermissions();
 		$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("reloadpermissions.success"));
 		return true;
 	}
