@@ -10,15 +10,18 @@ class PermissionEvent extends PluginEvent {
 	/** @var Permission|null $permission */
 	protected $permission = null;
 
+	/** @var bool $group */
+	protected $group = false;
 	/**
 	 * PermissionEvent constructor.
 	 *
 	 * @param ThePermissionManager $plugin
 	 * @param Permission $permission
 	 */
-	public function __construct(ThePermissionManager $plugin, Permission $permission = null) {
+	public function __construct(ThePermissionManager $plugin, Permission $permission = null, bool $group = false) {
 		parent::__construct($plugin);
 		$this->permission = $permission;
+		$this->group = $group;
 	}
 
 	public function getPermission() {
@@ -27,5 +30,13 @@ class PermissionEvent extends PluginEvent {
 
 	public function setPermission(Permission $permission) {
 		$this->permission = $permission;
+	}
+
+	public function isGroup() : bool {
+		return $this->group;
+	}
+
+	public function setGroup(bool $group = true) {
+		$this->group = $group;
 	}
 }

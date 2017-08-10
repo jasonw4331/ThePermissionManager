@@ -233,10 +233,10 @@ class ThePermissionManager extends PluginBase {
 	 * @return bool
 	 */
 	public function addPlayerPermission(Player $player, Permission $permission, bool $group = false) : bool {
-		$ev = new PermissionAddEvent($this, $permission);
+		$ev = new PermissionAddEvent($this, $permission, $group);
 		if(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true) !== true) {
 			$ev->setCancelled();
-			$this->removePlayerPermission($player, $permission, $group);
+			$this->removePlayerPermission($player, $permission, $ev->isGroup());
 		}
 		$this->getServer()->getPluginManager()->callEvent($ev);
 		if($ev->isCancelled()) {
@@ -249,7 +249,7 @@ class ThePermissionManager extends PluginBase {
 		$attachment = $this->perms[$player->getId()];
 		$attachment->setPermission($ev->getPermission(), true);
 
-		if(!$group) {
+		if(!$ev->isGroup()) {
 			$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
 			$data = $config->getAll()["permissions"];
 			if(($key = array_search("-".$ev->getPermission()->getName(), $data)) !== false) {
@@ -274,7 +274,7 @@ class ThePermissionManager extends PluginBase {
 	 * @return bool
 	 */
 	public function removePlayerPermission(Player $player, Permission $permission, bool $group = false) : bool {
-		$this->getServer()->getPluginManager()->callEvent($ev = new PermissionRemoveEvent($this, $permission));
+		$this->getServer()->getPluginManager()->callEvent($ev = new PermissionRemoveEvent($this, $permission, $group));
 		if($ev->isCancelled() and !(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true))) {
 			return false;
 		}
@@ -285,7 +285,7 @@ class ThePermissionManager extends PluginBase {
 		$attachment = $this->perms[$player->getId()];
 		$attachment->setPermission($ev->getPermission(), false);
 
-		if(!$group) {
+		if(!$ev->isGroup()) {
 			$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
 			$data = $config->getAll()["permissions"];
 			if(($key = array_search("-".$ev->getPermission()->getName(), $data)) !== false) {
