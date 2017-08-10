@@ -5,6 +5,7 @@ use jasonwynn10\PermMgr\commands\ListGroupPermissions;
 use jasonwynn10\PermMgr\commands\ListUserPermissions;
 use jasonwynn10\PermMgr\commands\PluginPermissions;
 use jasonwynn10\PermMgr\commands\ReloadPermissions;
+use jasonwynn10\PermMgr\commands\SetGroup;
 use jasonwynn10\PermMgr\commands\SetGroupPermission;
 use jasonwynn10\PermMgr\commands\SetUserPermission;
 use jasonwynn10\PermMgr\commands\UnsetGroupPermission;
@@ -36,11 +37,14 @@ class ThePermissionManager extends PluginBase {
 	/** @var string $defaultGroup */
 	private $defaultGroup = "";
 
+	/** @var string[] $groupAliases */
+	private $groupAliases = [];
+
 	/** @var BaseLang $baseLang */
 	private $baseLang = null;
 
 	public function onLoad() {
-		SpoonDetector::printSpoon($this,"spoon.txt");
+		//SpoonDetector::printSpoon($this,"spoon.txt");
 		$this->saveDefaultConfig();
 		$this->saveResource("groups.yml");
 		$this->groupsConfig = new Config($this->getDataFolder()."groups.yml", Config::YAML, [
@@ -102,7 +106,8 @@ class ThePermissionManager extends PluginBase {
 			new UnsetGroupPermission($this),
 			new ListGroupPermissions($this),
 			new ReloadPermissions($this),
-			new PluginPermissions($this)
+			new PluginPermissions($this),
+			new SetGroup($this)
 		]);
 	}
 
@@ -133,6 +138,10 @@ class ThePermissionManager extends PluginBase {
 		return $this->groupsConfig;
 	}
 
+	public function getGroupAliases() : array {
+		return $this->groupAliases;
+	}
+
 	private function loadGroups() {
 		$groups = $this->groupsConfig->getAll();
 		foreach($groups as $group => $data) {
@@ -145,6 +154,8 @@ class ThePermissionManager extends PluginBase {
 			}
 			if(!isset($data["alias"]) or !is_string($data["alias"])) {
 				$data["alias"] = '';
+			}else{
+				$this->groupAliases[$group] = $data["alias"];
 			}
 			if(!isset($data["inheritance"]) or !is_array($data["inheritance"])) {
 				$data["inheritance"] = [];
@@ -319,6 +330,9 @@ class ThePermissionManager extends PluginBase {
 		if($ev->isCancelled()) {
 			return false;
 		}
+		if(in_array($group, $this->groupAliases)) {
+			$group = array_search($group, $this->groupAliases);
+		}
 		$data = $this->groupsConfig->getAll()[$group];
 		if(($key = array_search("-".$ev->getPermission()->getName(), $data["permissions"])) !== false) {
 			$data["permissions"][$key] = $ev->getPermission()->getName();
@@ -347,6 +361,9 @@ class ThePermissionManager extends PluginBase {
 			return false;
 		}
 
+		if(in_array($group, $this->groupAliases)) {
+			$group = array_search($group, $this->groupAliases);
+		}
 		$data = $this->groupsConfig->getAll()[$group];
 		if(($key = array_search("-".$ev->getPermission()->getName(), $data["permissions"])) !== false) {
 			return false;
@@ -438,6 +455,9 @@ class ThePermissionManager extends PluginBase {
 	 */
 	public function setPlayerGroup(Player $player, string $group) : bool {
 		$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
+		if(in_array($group, $this->groupAliases)) {
+			$group = array_search($group, $this->groupAliases);
+		}
 		$config->set("group", $group);
 		$this->reloadPlayerPermissions([$player]);
 		return $config->save();
@@ -472,6 +492,18 @@ class ThePermissionManager extends PluginBase {
 		foreach($this->getGroupPermissions($config->get("group", $this->defaultGroup)) as $permission) {
 			$permissions[] = $permission;
 		}
+		if(($key = array_search("-*", $permissions)) !== false) {
+			unset($permissions[$key]);
+			foreach($this->getServer()->getPluginManager()->getPermissions() as $permission) {
+				$permissions[] = "-".$permission->getName();
+			}
+		}
+		if(($key = array_search("*", $permissions)) !== false) {
+			unset($permissions[$key]);
+			foreach($this->getServer()->getPluginManager()->getPermissions() as $permission) {
+				$permissions[] = $permission->getName();
+			}
+		}
 		return array_unique($permissions, SORT_STRING);
 	}
 
@@ -483,11 +515,26 @@ class ThePermissionManager extends PluginBase {
 	public function getGroupPermissions(string $group) : array {
 		$this->groupsConfig->reload();
 		$permissions = [];
+		if(in_array($group, $this->groupAliases)) {
+			$group = array_search($group, $this->groupAliases);
+		}
 		foreach($this->getInheritedPermissions($group) as $permission) {
 			$permissions[] = $permission;
 		}
 		foreach($this->groupsConfig->getAll()[$group]["permissions"] as $permission) {
 			$permissions[] = $permission;
+		}
+		if(($key = array_search("-*", $permissions)) !== false) {
+			unset($permissions[$key]);
+			foreach($this->getServer()->getPluginManager()->getPermissions() as $permission) {
+				$permissions[] = "-".$permission->getName();
+			}
+		}
+		if(($key = array_search("*", $permissions)) !== false) {
+			unset($permissions[$key]);
+			foreach($this->getServer()->getPluginManager()->getPermissions() as $permission) {
+				$permissions[] = $permission->getName();
+			}
 		}
 		return array_unique($permissions, SORT_STRING);
 	}
@@ -499,11 +546,29 @@ class ThePermissionManager extends PluginBase {
 	 */
 	public function getInheritedPermissions(string $group) : array {
 		$this->groupsConfig->reload();
+		if(in_array($group, $this->groupAliases)) {
+			$group = array_search($group, $this->groupAliases);
+		}
 		$permissions = [];
 		foreach($this->groupsConfig->getAll()[$group]["inheritance"] as $parentGroup) {
+			if(in_array($parentGroup, $this->groupAliases)) {
+				$parentGroup = array_search($parentGroup, $this->groupAliases);
+			}
 			$parentGroupData = $this->getGroups()->getAll()[$parentGroup];
 			foreach($parentGroupData["permissions"] as $parentPermission) {
 				$permissions[] = $parentPermission;
+			}
+		}
+		if(($key = array_search("-*", $permissions)) !== false) {
+			unset($permissions[$key]);
+			foreach($this->getServer()->getPluginManager()->getPermissions() as $permission) {
+				$permissions[] = "-".$permission->getName();
+			}
+		}
+		if(($key = array_search("*", $permissions)) !== false) {
+			unset($permissions[$key]);
+			foreach($this->getServer()->getPluginManager()->getPermissions() as $permission) {
+				$permissions[] = $permission->getName();
 			}
 		}
 		return array_unique($permissions, SORT_STRING);

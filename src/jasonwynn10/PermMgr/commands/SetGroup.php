@@ -10,6 +10,11 @@ use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
 
 class SetGroup extends PluginCommand {
+	/**
+	 * SetGroup constructor.
+	 *
+	 * @param ThePermissionManager $plugin
+	 */
 	public function __construct(ThePermissionManager $plugin) {
 		parent::__construct($plugin->getLanguage()->get("setgroup.name"), $plugin);
 		$this->setPermission("PermManager.command.setgroup");
@@ -37,7 +42,7 @@ class SetGroup extends PluginCommand {
 		if($player instanceof Player) {
 			if(isset($args[1])) {
 				$group = $args[1];
-				if(!in_array($group, array_keys($this->getPlugin()->getGroups()->getAll()))) {
+				if(!in_array($group, array_keys($this->getPlugin()->getGroups()->getAll())) and !in_array($group, $this->getPlugin()->getGroupAliases())) {
 					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
 					return true;
 				}
