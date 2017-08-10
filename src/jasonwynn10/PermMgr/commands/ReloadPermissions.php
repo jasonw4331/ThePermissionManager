@@ -55,6 +55,7 @@ class ReloadPermissions extends PluginCommand {
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
 		$commandData["overloads"]["default"]["input"]["parameters"] = [];
+		$commandData["permission"] = $this->getPermission();
 		return $commandData;
 	}
 }

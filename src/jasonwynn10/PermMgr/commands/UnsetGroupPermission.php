@@ -10,18 +10,18 @@ use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
 
-class UnsetUserPermission extends PluginCommand {
+class UnsetGroupPermission extends PluginCommand {
 	/**
-	 * UnsetUserPermission constructor.
+	 * UnsetGroupPermission constructor.
 	 *
 	 * @param ThePermissionManager $plugin
 	 */
 	public function __construct(ThePermissionManager $plugin){
-		parent::__construct($plugin->getLanguage()->get("unsetuserpermission.name"), $plugin);
-		$this->setPermission("PermManager.command.unsetuserpermission");
-		$this->setUsage($plugin->getLanguage()->get("unsetuserpermission.usage"));
-		$this->setAliases([$plugin->getLanguage()->get("unsetuserpermission.alias")]);
-		$this->setDescription($plugin->getLanguage()->get("unsetuserpermission.desc"));
+		parent::__construct($plugin->getLanguage()->get("unsetgrouppermission.name"), $plugin);
+		$this->setPermission("PermManager.command.unsetgrouppermission");
+		$this->setUsage($plugin->getLanguage()->get("unsetgrouppermission.usage"));
+		$this->setAliases([$plugin->getLanguage()->get("unsetgrouppermission.alias")]);
+		$this->setDescription($plugin->getLanguage()->get("unsetgrouppermission.desc"));
 	}
 
 	/**
@@ -49,7 +49,7 @@ class UnsetUserPermission extends PluginCommand {
 				$perm = new Permission($args[1]);
 				$this->getPlugin()->removePlayerPermission($player, $perm);
 			}
-			$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetuserpermission.success", [$args[0]]));
+			$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetgrouppermission.success", [$args[0]]));
 		} else {
 			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[0]]));
 		}
@@ -70,6 +70,10 @@ class UnsetUserPermission extends PluginCommand {
 	 */
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
+		$groups = [];
+		foreach($this->getPlugin()->getGroups() as $group => $data) {
+			$groups[] = $group;
+		}
 		$worlds = [];
 		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
 			if(!$level->isClosed()) {
@@ -78,9 +82,10 @@ class UnsetUserPermission extends PluginCommand {
 		}
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
 			[
-				"name" => "player",
-				"type" => "target",
-				"optional" => false
+				"name" => "group",
+				"type" => "stringenum",
+				"optional" => false,
+				"enum_values" => $groups
 			],
 			[
 				"name" => "permission",

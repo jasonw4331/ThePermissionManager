@@ -88,6 +88,7 @@ class ListUserPermissions extends PluginCommand {
 				"enum_values" => $worlds
 			]
 		];
+		$commandData["permission"] = $this->getPermission();
 		return $commandData;
 	}
 }

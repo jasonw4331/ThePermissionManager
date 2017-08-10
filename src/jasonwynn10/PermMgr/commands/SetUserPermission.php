@@ -41,7 +41,7 @@ class SetUserPermission extends PluginCommand {
 		if($player instanceof Player) {
 			if(isset($args[1])) {
 				if($args[1]{0} == "-") {
-					$permString = str_replace("-","",$args[1]);
+					$permString = str_replace("-","", $args[1]);
 					if($permString == "*") {
 						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
 							$this->getPlugin()->removePlayerPermission($player, $permission);
@@ -78,6 +78,12 @@ class SetUserPermission extends PluginCommand {
 	 */
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
+		$worlds = [];
+		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
+			if(!$level->isClosed()) {
+				$worlds[] = $level->getName();
+			}
+		}
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
 			[
 				"name" => "player",
@@ -88,8 +94,15 @@ class SetUserPermission extends PluginCommand {
 				"name" => "permission",
 				"type" => "rawtext",
 				"optional" => false
+			],
+			[
+				"name" => "world",
+				"type" => "stringenum",
+				"optional" => true,
+				"enum_values" => $worlds
 			]
 		];
+		$commandData["permission"] = $this->getPermission();
 		return $commandData;
 	}
 }

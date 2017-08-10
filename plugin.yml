@@ -26,3 +26,7 @@ permissions:
             default: op
           PermManager.command.pluginpermissions:
             default: true
+          PermManager.command.setgrouppermission:
+            default: op
+          PermManager.command.unsetgrouppermission:
+            default: op

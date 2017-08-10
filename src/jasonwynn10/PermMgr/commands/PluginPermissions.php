@@ -80,6 +80,7 @@ class PluginPermissions extends PluginCommand {
 				"enum_values" => $names
 			]
 		];
+		$commandData["permission"] = $this->getPermission();
 		return $commandData;
 	}
 }
