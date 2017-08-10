@@ -64,7 +64,7 @@ CoOwner:
   - pocketmine.command.spawnpoint
   - pocketmine.command.setworldspawn
   - PermManager
- - worlds: []
+  worlds: []
 Owner:
   alias: own
   isDefault: false
