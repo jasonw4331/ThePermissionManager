@@ -21,6 +21,7 @@ class ListGroupPermissions extends PluginCommand {
 		$this->setUsage($plugin->getLanguage()->get("listgrouppermissions.usage"));
 		$this->setAliases([$plugin->getLanguage()->get("listgrouppermissions.alias")]);
 		$this->setDescription($plugin->getLanguage()->get("listgrouppermissions.desc"));
+		$this->setPermissionMessage($plugin->getLanguage()->get("nopermission"));
 	}
 
 	/**

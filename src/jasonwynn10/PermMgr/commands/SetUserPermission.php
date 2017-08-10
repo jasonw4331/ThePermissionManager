@@ -22,6 +22,7 @@ class SetUserPermission extends PluginCommand {
 		$this->setUsage($plugin->getLanguage()->get("setuserpermission.usage"));
 		$this->setAliases([$plugin->getLanguage()->get("setuserpermission.alias")]);
 		$this->setDescription($plugin->getLanguage()->get("setuserpermission.desc"));
+		$this->setPermissionMessage($plugin->getLanguage()->get("nopermission"));
 	}
 
 	/**

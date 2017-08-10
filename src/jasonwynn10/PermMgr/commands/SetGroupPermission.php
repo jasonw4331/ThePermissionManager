@@ -22,6 +22,7 @@ class SetGroupPermission extends PluginCommand {
 		$this->setUsage($plugin->getLanguage()->get("setgrouppermission.usage"));
 		$this->setAliases([$plugin->getLanguage()->get("setgrouppermission.alias")]);
 		$this->setDescription($plugin->getLanguage()->get("setgrouppermission.desc"));
+		$this->setPermissionMessage($plugin->getLanguage()->get("nopermission"));
 	}
 
 	/**

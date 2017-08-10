@@ -22,6 +22,7 @@ class UnsetGroupPermission extends PluginCommand {
 		$this->setUsage($plugin->getLanguage()->get("ununsetgrouppermission.usage"));
 		$this->setAliases([$plugin->getLanguage()->get("ununsetgrouppermission.alias")]);
 		$this->setDescription($plugin->getLanguage()->get("ununsetgrouppermission.desc"));
+		$this->setPermissionMessage($plugin->getLanguage()->get("nopermission"));
 	}
 
 	/**

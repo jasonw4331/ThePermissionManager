@@ -23,6 +23,7 @@ class PluginPermissions extends PluginCommand {
 		$this->setUsage($plugin->getLanguage()->get("pluginpermissions.usage"));
 		$this->setAliases([$plugin->getLanguage()->get("pluginpermissions.alias")]);
 		$this->setDescription($plugin->getLanguage()->get("pluginpermissions.desc"));
+		$this->setPermissionMessage($plugin->getLanguage()->get("nopermission"));
 	}
 
 	/**

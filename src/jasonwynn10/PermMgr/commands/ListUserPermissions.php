@@ -21,6 +21,7 @@ class ListUserPermissions extends PluginCommand {
 		$this->setUsage($plugin->getLanguage()->get("listuserpermissions.usage"));
 		$this->setAliases([$plugin->getLanguage()->get("listuserpermissions.alias")]);
 		$this->setDescription($plugin->getLanguage()->get("listuserpermissions.desc"));
+		$this->setPermissionMessage($plugin->getLanguage()->get("nopermission"));
 	}
 
 	/**

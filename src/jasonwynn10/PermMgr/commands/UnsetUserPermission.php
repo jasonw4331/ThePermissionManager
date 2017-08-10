@@ -22,6 +22,7 @@ class UnsetUserPermission extends PluginCommand {
 		$this->setUsage($plugin->getLanguage()->get("unsetuserpermission.usage"));
 		$this->setAliases([$plugin->getLanguage()->get("unsetuserpermission.alias")]);
 		$this->setDescription($plugin->getLanguage()->get("unsetuserpermission.desc"));
+		$this->setPermissionMessage($plugin->getLanguage()->get("nopermission"));
 	}
 
 	/**
