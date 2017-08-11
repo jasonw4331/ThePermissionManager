@@ -42,7 +42,7 @@ class SetGroup extends PluginCommand {
 		if($player instanceof Player) {
 			if(isset($args[1])) {
 				$group = $args[1];
-				if(!in_array($group, array_keys($this->getPlugin()->getGroups()->getAll())) and !in_array($group, $this->getPlugin()->getGroupAliases())) {
+				if(!in_array($group, array_keys($this->getPlugin()->getGroups()->getAll())) and !$this->getPlugin()->isAlias($group)) {
 					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
 					return true;
 				}
@@ -51,6 +51,7 @@ class SetGroup extends PluginCommand {
 					return true;
 				}else{
 					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgroup.success", [$player->getName(), $group]));
+					$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("setgroup.notify", [$group]));
 					return true;
 				}
 			}else{

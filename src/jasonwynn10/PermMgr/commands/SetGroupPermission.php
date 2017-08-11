@@ -40,7 +40,7 @@ class SetGroupPermission extends PluginCommand {
 			return false;
 		}
 		$group = $args[0];
-		if(!in_array($group, array_keys($this->getPlugin()->getGroups()->getAll()))) {
+		if(!in_array($group, array_keys($this->getPlugin()->getGroups()->getAll())) and !$this->getPlugin()->isAlias($group)) {
 			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
 			return true;
 		}

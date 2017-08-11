@@ -330,9 +330,6 @@ class ThePermissionManager extends PluginBase {
 		if($ev->isCancelled()) {
 			return false;
 		}
-		if(in_array($group, $this->groupAliases)) {
-			$group = array_search($group, $this->groupAliases);
-		}
 		$data = $this->groupsConfig->getAll()[$group];
 		if(($key = array_search("-".$ev->getPermission()->getName(), $data["permissions"])) !== false) {
 			$data["permissions"][$key] = $ev->getPermission()->getName();
@@ -361,9 +358,6 @@ class ThePermissionManager extends PluginBase {
 			return false;
 		}
 
-		if(in_array($group, $this->groupAliases)) {
-			$group = array_search($group, $this->groupAliases);
-		}
 		$data = $this->groupsConfig->getAll()[$group];
 		if(($key = array_search("-".$ev->getPermission()->getName(), $data["permissions"])) !== false) {
 			return false;
@@ -448,6 +442,19 @@ class ThePermissionManager extends PluginBase {
 	}
 
 	/**
+	 * @param string &$group returns the full group name
+	 *
+	 * @return bool
+	 */
+	public function isAlias(string &$group) : bool {
+		if(in_array($group, $this->groupAliases)) {
+			$group = array_search($group, $this->groupAliases);
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * @param Player $player
 	 * @param string $group
 	 *
@@ -455,9 +462,6 @@ class ThePermissionManager extends PluginBase {
 	 */
 	public function setPlayerGroup(Player $player, string $group) : bool {
 		$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
-		if(in_array($group, $this->groupAliases)) {
-			$group = array_search($group, $this->groupAliases);
-		}
 		$config->set("group", $group);
 		$this->reloadPlayerPermissions([$player]);
 		return $config->save();
@@ -515,9 +519,6 @@ class ThePermissionManager extends PluginBase {
 	public function getGroupPermissions(string $group) : array {
 		$this->groupsConfig->reload();
 		$permissions = [];
-		if(in_array($group, $this->groupAliases)) {
-			$group = array_search($group, $this->groupAliases);
-		}
 		foreach($this->getInheritedPermissions($group) as $permission) {
 			$permissions[] = $permission;
 		}
@@ -546,14 +547,9 @@ class ThePermissionManager extends PluginBase {
 	 */
 	public function getInheritedPermissions(string $group) : array {
 		$this->groupsConfig->reload();
-		if(in_array($group, $this->groupAliases)) {
-			$group = array_search($group, $this->groupAliases);
-		}
 		$permissions = [];
 		foreach($this->groupsConfig->getAll()[$group]["inheritance"] as $parentGroup) {
-			if(in_array($parentGroup, $this->groupAliases)) {
-				$parentGroup = array_search($parentGroup, $this->groupAliases);
-			}
+			$this->isAlias($parentGroup); //fixes alias to be real name
 			$parentGroupData = $this->getGroups()->getAll()[$parentGroup];
 			foreach($parentGroupData["permissions"] as $parentPermission) {
 				$permissions[] = $parentPermission;
