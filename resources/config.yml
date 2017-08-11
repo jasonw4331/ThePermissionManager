@@ -2,6 +2,10 @@
 # - eng
 lang: eng
 
+# Set default data provider
+# - yaml
+data-provider: yaml
+
 # Disable /op permission for all players
 # - true / false
 disable-op: true
@@ -9,6 +13,14 @@ disable-op: true
 # Setting this option will allow you to use per-world permissions
 # - true / false
 enable-multiworld-perms: false
+
+# MySQL Settings (Only configure this if you are going to use MySQL data provider)
+mysql-settings:
+  host: "better.than.pureperms"
+  port: 3306
+  user: "Username"
+  password: "Number1Password"
+  db: "PermissionsDB"
 
 # Ranks that can only be set on console
 # Also, users with a superadmin-group can only have their rank changed by the console
