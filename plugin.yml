@@ -1,11 +1,11 @@
 name: ThePermissionManager
 main: jasonwynn10\PermMgr\ThePermissionManager
-version: 0.1.5
+version: 0.1.6
 api:
  - 3.0.0
  - 3.0.0-ALPHA7
 author: "jasonwynn10"
-description: "A modern Permission Manager for PMMP servers"
+description: "A modern PocketMine Permission Manager for PMMP servers"
 load: STARTUP
 extensions:
  - yaml
@@ -29,4 +29,8 @@ permissions:
           PermManager.command.setgrouppermission:
             default: op
           PermManager.command.unsetgrouppermission:
+            default: op
+          PermManager.command.listgrouppermissions:
+            default: true
+          PermManager.command.setgroup:
             default: op

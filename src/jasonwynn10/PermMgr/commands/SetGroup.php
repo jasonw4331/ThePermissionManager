@@ -4,6 +4,7 @@ namespace jasonwynn10\PermMgr\commands;
 use jasonwynn10\PermMgr\ThePermissionManager;
 
 use pocketmine\command\CommandSender;
+use pocketmine\command\ConsoleCommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
@@ -45,6 +46,21 @@ class SetGroup extends PluginCommand {
 				if(!in_array($group, array_keys($this->getPlugin()->getGroups()->getAll())) and !$this->getPlugin()->isAlias($group)) {
 					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
 					return true;
+				}
+				if(in_array($group, $this->getPlugin()->getSuperAdmins())) {
+					if($sender instanceof ConsoleCommandSender) {
+						if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
+							$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+							return true;
+						}else{
+							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgroup.success", [$player->getName(), $group]));
+							$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("setgroup.notify", [$group]));
+							return true;
+						}
+					}else{
+						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+						return true;
+					}
 				}
 				if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
 					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));

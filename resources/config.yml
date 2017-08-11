@@ -11,8 +11,8 @@ disable-op: true
 enable-multiworld-perms: false
 
 # Ranks that can only be set on console
-# Also, users with a superadmin-rank can only have their rank changed by the console
+# Also, users with a superadmin-group can only have their rank changed by the console
 # - array
-superadmin-ranks:
+superadmin-groups:
  - Owner
  - CoOwner

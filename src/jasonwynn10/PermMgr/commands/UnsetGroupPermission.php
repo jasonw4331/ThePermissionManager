@@ -4,6 +4,7 @@ namespace jasonwynn10\PermMgr\commands;
 use jasonwynn10\PermMgr\ThePermissionManager;
 
 use pocketmine\command\CommandSender;
+use pocketmine\command\ConsoleCommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\permission\Permission;
 use pocketmine\Player;
@@ -43,6 +44,34 @@ class UnsetGroupPermission extends PluginCommand {
 		if(!in_array($group, array_keys($this->getPlugin()->getGroups()->getAll())) and !$this->getPlugin()->isAlias($group)) {
 			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
 			return true;
+		}
+		if(in_array($group, $this->getPlugin()->getSuperAdmins())) {
+			if($sender instanceof ConsoleCommandSender) {
+				if(isset($args[1])) {
+					$permString = $args[1];
+					$permString = str_replace("-","", $permString);
+					if($permString === "*") {
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->removeGroupPermission($group, $permission);
+						}
+						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetgrouppermission.success", [$group]));
+						return true;
+					}else{
+						$permission = new Permission($permString);
+						if(!$this->getPlugin()->removeGroupPermission($group, $permission)) {
+							$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+						}else{
+							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetgrouppermission.success", [$group]));
+						}
+						return true;
+					}
+				}else{
+					return false;
+				}
+			}else{
+				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+				return true;
+			}
 		}
 		if(isset($args[1])) {
 			$permString = $args[1];

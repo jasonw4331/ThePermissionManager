@@ -15,7 +15,6 @@ use jasonwynn10\PermMgr\event\PermissionAddEvent;
 use jasonwynn10\PermMgr\event\PermissionAttachEvent;
 use jasonwynn10\PermMgr\event\PermissionDetachEvent;
 use jasonwynn10\PermMgr\event\PermissionRemoveEvent;
-use jasonwynn10\PermMgr\task\PermissionExpirationTask;
 
 use pocketmine\lang\BaseLang;
 use pocketmine\permission\DefaultPermissions;
@@ -40,12 +39,16 @@ class ThePermissionManager extends PluginBase {
 	/** @var string[] $groupAliases */
 	private $groupAliases = [];
 
+	/** @var string[] $superAdmins */
+	private $superAdmins = [];
+
 	/** @var BaseLang $baseLang */
 	private $baseLang = null;
 
 	public function onLoad() {
-		//SpoonDetector::printSpoon($this,"spoon.txt");
+		SpoonDetector::printSpoon($this,"spoon.txt");
 		$this->saveDefaultConfig();
+		$this->getConfig()->reload();
 		$this->saveResource("groups.yml");
 		$this->groupsConfig = new Config($this->getDataFolder()."groups.yml", Config::YAML, [
 			"Guest" => [
@@ -92,11 +95,11 @@ class ThePermissionManager extends PluginBase {
 		$this->loadGroups();
 		$lang = $this->getConfig()->get("lang", BaseLang::FALLBACK_LANGUAGE);
 		$this->baseLang = new BaseLang($lang,$this->getFile() . "resources/");
+		$this->superAdmins = $this->getConfig()->get("superadmin-groups", []);
 	}
 
 	public function onEnable() {
 		new EventListener($this);
-		$this->getServer()->getScheduler()->scheduleRepeatingTask(new PermissionExpirationTask($this), 20);
 
 		$this->getServer()->getCommandMap()->registerAll(self::class, [
 			new SetUserPermission($this),
@@ -136,10 +139,6 @@ class ThePermissionManager extends PluginBase {
 
 	public function getGroups() : Config {
 		return $this->groupsConfig;
-	}
-
-	public function getGroupAliases() : array {
-		return $this->groupAliases;
 	}
 
 	private function loadGroups() {
@@ -183,7 +182,7 @@ class ThePermissionManager extends PluginBase {
 	 * @return bool
 	 */
 	public function attachPlayer(Player $player) : bool {
-		if(isset($this->perms[$player->getId()])) {
+		if($this->isAttached($player)) {
 			return false;
 		}
 		$attachment = $player->addAttachment($this);
@@ -214,6 +213,11 @@ class ThePermissionManager extends PluginBase {
 		$playerPerms = $config->get("permissions", []);
 		sort($playerPerms, SORT_NATURAL | SORT_FLAG_CASE);
 		$config->set("permissions", $playerPerms);
+		if($this->getConfig()->get("enable-multiworld-perms", false)) {
+			if(!$config->exists("worlds")) {
+				$config->set("worlds", []);
+			}
+		}
 		$config->save();
 		foreach($playerPerms as $permission) {
 			if($this->sortPermissionConfigStrings($permission)) {
@@ -239,12 +243,24 @@ class ThePermissionManager extends PluginBase {
 
 	/**
 	 * @param Player $player
+	 *
+	 * @return bool
+	 */
+	public function isAttached(Player $player) : bool {
+		return isset($this->perms[$player->getId()]);
+	}
+
+	/**
+	 * @param Player $player
 	 * @param Permission $permission
 	 * @param bool $group
 	 *
 	 * @return bool
 	 */
 	public function addPlayerPermission(Player $player, Permission $permission, bool $group = false) : bool {
+		if(!$this->isAttached($player)) {
+			return false;
+		}
 		$ev = new PermissionAddEvent($this, $permission, $group);
 		if(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true) !== true) {
 			$ev->setCancelled();
@@ -255,9 +271,6 @@ class ThePermissionManager extends PluginBase {
 			return false;
 		}
 
-		if(!isset($this->perms[$player->getId()])) {
-			return false;
-		}
 		$attachment = $this->perms[$player->getId()];
 		$attachment->setPermission($ev->getPermission(), true);
 
@@ -286,14 +299,14 @@ class ThePermissionManager extends PluginBase {
 	 * @return bool
 	 */
 	public function removePlayerPermission(Player $player, Permission $permission, bool $group = false) : bool {
+		if(!$this->isAttached($player)) {
+			return false;
+		}
 		$this->getServer()->getPluginManager()->callEvent($ev = new PermissionRemoveEvent($this, $permission, $group));
 		if($ev->isCancelled() and !(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true))) {
 			return false;
 		}
 
-		if(!isset($this->perms[$player->getId()])) {
-			return false;
-		}
 		$attachment = $this->perms[$player->getId()];
 		$attachment->setPermission($ev->getPermission(), false);
 
@@ -313,7 +326,6 @@ class ThePermissionManager extends PluginBase {
 		}
 		return true;
 	}
-
 
 	/**
 	 * @param string $group
@@ -383,7 +395,7 @@ class ThePermissionManager extends PluginBase {
 	public function reloadPlayerPermissions(array $players = []) : bool {
 		$players = !empty($players) ? $players : $this->getServer()->getOnlinePlayers();
 		foreach($players as $player) {
-			if(!isset($this->perms[$player->getId()])) {
+			if(!$this->isAttached($player)) {
 				continue;
 			}
 			$player->removeAttachment($this->perms[$player->getId()]);
@@ -465,6 +477,20 @@ class ThePermissionManager extends PluginBase {
 		$config->set("group", $group);
 		$this->reloadPlayerPermissions([$player]);
 		return $config->save();
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getGroupAliases() : array {
+		return $this->groupAliases;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getSuperAdmins() : array {
+		return $this->superAdmins;
 	}
 
 	/**
