@@ -1,6 +1,6 @@
 <?php
 namespace jasonwynn10\PermMgr\event;
 
-class PermissionAttachEvent extends PlayerPermissionEvent {
+class PlayerPermissionRemoveEvent extends PlayerPermissionEvent {
 	public static $handlerList = null;
 }
