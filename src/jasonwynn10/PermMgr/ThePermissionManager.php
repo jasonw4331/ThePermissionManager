@@ -12,6 +12,7 @@ use jasonwynn10\PermMgr\commands\SetUserPermission;
 use jasonwynn10\PermMgr\commands\UnsetGroupPermission;
 use jasonwynn10\PermMgr\commands\UnsetUserPermission;
 use jasonwynn10\PermMgr\event\EventListener;
+use jasonwynn10\PermMgr\event\GroupChangeEvent;
 use jasonwynn10\PermMgr\event\GroupPermissionAddEvent;
 use jasonwynn10\PermMgr\event\GroupPermissionRemoveEvent;
 use jasonwynn10\PermMgr\event\PermissionAttachEvent;
@@ -30,7 +31,6 @@ use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionAttachment;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
-use pocketmine\utils\Config;
 
 use spoondetector\SpoonDetector;
 
@@ -339,8 +339,11 @@ class ThePermissionManager extends PluginBase {
 	 * @return bool
 	 */
 	public function setPlayerGroup(Player $player, string $group) : bool {
-		$config = new Config($this->getDataFolder()."players".DIRECTORY_SEPARATOR.$player->getLowerCaseName().DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
-		$config->set("group", $group);
+		$config = $this->getPlayerProvider()->getPlayerConfig($player);
+		$this->getServer()->getPluginManager()->callEvent($ev = new GroupChangeEvent($this, $config->get("group"), $group));
+		if($ev->isCancelled())
+			return false;
+		$config->set("group", $ev->getNewGroup());
 		$this->reloadPlayerPermissions([$player]);
 		return $config->save();
 	}
