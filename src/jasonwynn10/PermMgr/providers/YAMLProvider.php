@@ -5,7 +5,9 @@ use pocketmine\IPlayer;
 use pocketmine\utils\Config;
 
 class YAMLProvider extends DataProvider {
-
+	/**
+	 * @param IPlayer $player
+	 */
 	public function init(IPlayer $player) {
 		@mkdir($this->plugin->getDataFolder()."players");
 		@mkdir($this->plugin->getDataFolder()."players".DIRECTORY_SEPARATOR.strtolower($player));
@@ -23,43 +25,11 @@ class YAMLProvider extends DataProvider {
 
 	/**
 	 * @param IPlayer $player
-	 * @param array $data
 	 *
-	 * @return bool
+	 * @return Config
 	 */
-	public function setPlayerPermissions(IPlayer $player, array $data) : bool {
-		$config = $this->getPlayerConfig($player);
-		$config->set("permissions", $data);
-		$config->save();
-		return $this->sortPlayerPermissions($player);
-	}
-
-	/**
-	 * @param IPlayer $player
-	 * @param array $data
-	 *
-	 * @return bool
-	 */
-	public function addPlayerPermissions(IPlayer $player, array $data = []) : bool {
-		$permissions = $this->getPlayerPermissions($player);
-		array_merge($permissions, $data);
-		return $this->setPlayerPermissions($player, $data);
-	}
-
-	/**
-	 * @param IPlayer $player
-	 * @param string[] $permissions
-	 *
-	 * @return bool
-	 */
-	public function removePlayerPermissions(IPlayer $player, array $permissions = []) : bool {
-		$perms = $this->getPlayerPermissions($player);
-		foreach($permissions as $permission) {
-			if(($key = array_search($permission, $this->getPlayerPermissions($player))) !== false) {
-				unset($perms[$key]);
-			}
-		}
-		return $this->setPlayerPermissions($player, $perms);
+	public function getPlayerConfig(IPlayer $player) : Config {
+		return new Config($this->plugin->getDataFolder()."players".DIRECTORY_SEPARATOR.strtolower($player->getName()).DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
 	}
 
 	/**
@@ -73,20 +43,14 @@ class YAMLProvider extends DataProvider {
 
 	/**
 	 * @param IPlayer $player
+	 * @param array $data
 	 *
-	 * @return string[]
+	 * @return bool
 	 */
-	public function getAllPlayerPermissions(IPlayer $player) : array{
-		$playerPerms = array_merge($this->getPlayerPermissions($player), $this->plugin->getGroups()->getAllGroupPermissions($this->getGroup($player)));
-		return array_unique($playerPerms);
-	}
-	/**
-	 * @param IPlayer $player
-	 *
-	 * @return Config
-	 */
-	public function getPlayerConfig(IPlayer $player) : Config {
-		return new Config($this->plugin->getDataFolder()."players".DIRECTORY_SEPARATOR.strtolower($player->getName()).DIRECTORY_SEPARATOR."permissions.yml", Config::YAML);
+	public function setPlayerPermissions(IPlayer $player, array $data) : bool {
+		$config = $this->getPlayerConfig($player);
+		$config->set("permissions", $data);
+		return $config->save();
 	}
 
 	/**

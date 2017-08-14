@@ -38,7 +38,10 @@ abstract class DataProvider {
 	 *
 	 * @return string[]
 	 */
-	abstract function getAllPlayerPermissions(IPlayer $player) : array;
+	public function getAllPlayerPermissions(IPlayer $player) : array {
+		$playerPerms = array_merge($this->getPlayerPermissions($player), $this->plugin->getGroups()->getAllGroupPermissions($this->getGroup($player)));
+		return array_unique($playerPerms);
+	}
 
 	/**
 	 * @param IPlayer $player
@@ -54,7 +57,11 @@ abstract class DataProvider {
 	 *
 	 * @return bool
 	 */
-	abstract function addPlayerPermissions(IPlayer $player, array $permissions = []) : bool;
+	public function addPlayerPermissions(IPlayer $player, array $permissions = []) : bool {
+		$perms = $this->getPlayerPermissions($player);
+		$perms = array_merge($perms, $permissions);
+		return $this->setPlayerPermissions($player, $perms);
+	}
 
 	/**
 	 * @param IPlayer $player
@@ -62,7 +69,15 @@ abstract class DataProvider {
 	 *
 	 * @return bool
 	 */
-	abstract function removePlayerPermissions(IPlayer $player, array $permissions = []) : bool;
+	public function removePlayerPermissions(IPlayer $player, array $permissions = []) : bool {
+		$perms = $this->getPlayerPermissions($player);
+		foreach($permissions as $permission) {
+			if(($key = array_search($permission, $this->getPlayerPermissions($player))) !== false) {
+				unset($perms[$key]);
+			}
+		}
+		return $this->setPlayerPermissions($player, $perms);
+	}
 
 	/**
 	 * @param IPlayer $player
@@ -79,6 +94,7 @@ abstract class DataProvider {
 	/**
 	 * @param IPlayer $player
 	 *
+	 * @throws \BadMethodCallException
 	 * @return Config
 	 */
 	abstract function getPlayerConfig(IPlayer $player)  : Config;

@@ -190,7 +190,8 @@ class ThePermissionManager extends PluginBase {
 		$attachment->setPermission($ev->getPermission(), true);
 
 		if(!$ev->isGroup()) {
-			$this->getPlayerProvider()->setPlayerPermissions($player, [$permission->getName()]);
+			$this->playerProvider->setPlayerPermissions($player, [$permission->getName()]);
+			$this->playerProvider->sortPlayerPermissions($player);
 		}
 		return true;
 	}

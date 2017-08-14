@@ -3,7 +3,7 @@
 lang: eng
 
 # Set default data provider
-# - yaml
+# - yaml, pureperms
 data-provider: yaml
 
 # Disable /op permission for all players
