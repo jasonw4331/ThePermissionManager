@@ -26,8 +26,8 @@ class GroupManager {
 	public function __construct(ThePermissionManager $plugin) {
 		$this->plugin = $plugin;
 		$plugin->saveResource("groups.yml");
-		$config = new Config($plugin->getDataFolder()."groups.yml", Config::YAML);
-		$groups = $config->getAll();
+		$this->config = new Config($plugin->getDataFolder()."groups.yml", Config::YAML);
+		$groups = $this->config->getAll();
 		foreach($groups as $group => $data) {
 			if(isset($data["isDefault"]) and is_bool($data["isDefault"])) {
 				if($data["isDefault"] === true) {
@@ -43,6 +43,13 @@ class GroupManager {
 			}
 			if(!isset($data["inheritance"]) or !is_array($data["inheritance"])) {
 				$data["inheritance"] = [];
+			}else{
+				foreach($data["inheritance"] as $key => $alias) {
+					if($this->isAlias($alias)) {
+						$data["inheritance"][$key] = $alias;
+					}
+				}
+				sort($data["inheritance"], SORT_NATURAL | SORT_FLAG_CASE);
 			}
 			if(!isset($data["permissions"]) or !is_array($data["permissions"])) {
 				$data["permissions"] = [];
@@ -54,20 +61,10 @@ class GroupManager {
 					$data["worlds"] = [];
 				}
 			}
-			$config->set($group, $data);
+			$this->config->set($group, $data);
 			$this->sortGroupPermissions($group);
 		}
-		$config->save();
-		foreach($groups as $group => $data) {
-			foreach($data["alias"] as $key => $alias) {
-				if($this->plugin->isAlias($alias)) {
-					$data["alias"][$key] = $alias;
-				}
-			}
-			$config->set($group, $data);
-		}
-		$config->save();
-		$this->config = $config;
+		$this->config->save();
 	}
 
 	/**
@@ -168,9 +165,8 @@ class GroupManager {
 		$this->config->reload();
 		$permissions = [];
 		foreach($this->config->getAll()[$group]["inheritance"] as $parentGroup) {
-			$this->plugin->isAlias($parentGroup); //fixes alias to be real name
-			$parentGroupData = $this->config->getAll()[$parentGroup];
-			foreach($parentGroupData["permissions"] as $parentPermission) {
+			$this->isAlias($parentGroup); //fixes alias to be real name
+			foreach($this->getInheritedPermissions($parentGroup) as $parentPermission) {
 				$permissions[] = $parentPermission;
 			}
 		}
@@ -195,6 +191,20 @@ class GroupManager {
 	public function getAliases() : array {
 		return $this->groupAliases;
 	}
+
+	/**
+	 * @param string $group
+	 *
+	 * @return bool
+	 */
+	public function isAlias(string &$group) : bool {
+		if(in_array($group, $this->groupAliases)) {
+			$group = array_search($group, $this->groupAliases);
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * @param string[] $groups
 	 *

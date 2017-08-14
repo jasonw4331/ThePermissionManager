@@ -1,16 +1,27 @@
 <?php
 namespace jasonwynn10\PermMgr\providers;
 
+use jasonwynn10\PermMgr\ThePermissionManager;
+
 use pocketmine\IPlayer;
 use pocketmine\utils\Config;
 
 class YAMLProvider extends DataProvider {
 	/**
+	 * YAMLProvider constructor.
+	 *
+	 * @param ThePermissionManager $plugin\
+	 */
+	public function __construct(ThePermissionManager $plugin) {
+		parent::__construct($plugin);
+		@mkdir($this->plugin->getDataFolder()."players");
+	}
+
+	/**
 	 * @param IPlayer $player
 	 */
 	public function init(IPlayer $player) {
-		@mkdir($this->plugin->getDataFolder()."players");
-		@mkdir($this->plugin->getDataFolder()."players".DIRECTORY_SEPARATOR.strtolower($player));
+		@mkdir($this->plugin->getDataFolder()."players".DIRECTORY_SEPARATOR.strtolower($player->getName()));
 		$config = $this->getPlayerConfig($player);
 		if(!$config->exists("group")) {
 			$config->set("group", $this->plugin->getGroups()->getDefaultGroup());

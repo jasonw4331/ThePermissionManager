@@ -1,6 +1,8 @@
 <?php
 namespace jasonwynn10\PermMgr\event;
 
-class GroupPermissionRemoveEvent extends GroupPermissionEvent {
+use pocketmine\event\Cancellable;
+
+class GroupPermissionRemoveEvent extends GroupPermissionEvent implements Cancellable {
 	public static $handlerList = null;
 }

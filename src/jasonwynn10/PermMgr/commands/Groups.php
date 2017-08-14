@@ -7,20 +7,18 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
-use pocketmine\utils\TextFormat;
 
-class ListGroupPermissions extends PluginCommand {
+class Groups extends PluginCommand {
 	/**
-	 * ListGroupPermissions constructor.
+	 * Groups constructor.
 	 *
 	 * @param ThePermissionManager $plugin
 	 */
 	public function __construct(ThePermissionManager $plugin) {
-		parent::__construct($plugin->getLanguage()->get("listgrouppermissions.name"), $plugin);
-		$this->setPermission("PermManager.command.listgrouppermissions");
-		$this->setUsage($plugin->getLanguage()->get("listgrouppermissions.usage"));
-		$this->setAliases([$plugin->getLanguage()->get("listgrouppermissions.alias")]);
-		$this->setDescription($plugin->getLanguage()->get("listgrouppermissions.desc"));
+		parent::__construct($plugin->getLanguage()->get("groups.name"), $plugin);
+		$this->setPermission("PermManager.command.groups");
+		$this->setUsage($plugin->getLanguage()->get("groups.usage"));
+		$this->setDescription($plugin->getLanguage()->get("groups.desc"));
 		$this->setPermissionMessage($plugin->getLanguage()->get("nopermission"));
 	}
 
@@ -35,23 +33,10 @@ class ListGroupPermissions extends PluginCommand {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
-		if(empty($args)) {
-			return false;
-		}
-		$group = $args[0];
-		if(!in_array($group, $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true)) and !$this->getPlugin()->isAlias($group)) {
-			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
-			return true;
-		}
-		$permissions = [];
-		foreach($this->getPlugin()->getGroups()->getAllGroupPermissions($group) as $permission) {
-			if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
-				$permissions[] = $permission;
-			}
-		}
-		sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
-		foreach($permissions as $permission) {
-			$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("listgrouppermissions.list", [$permission]));
+		$groups = $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true);
+		//sort($groups, SORT_NATURAL | SORT_FLAG_CASE); //comment out to sort by time of creation
+		foreach($groups as $group) {
+			$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("groups.list", [$group]));
 		}
 		return true;
 	}
@@ -70,11 +55,11 @@ class ListGroupPermissions extends PluginCommand {
 	 */
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
-		$groups = [];
-		foreach($this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true) as $group) {
-			$groups[] = $group;
+		$players = [];
+		foreach($this->getPlugin()->getServer()->getOnlinePlayers() as $player) {
+			$players[] = $player->getName();
 		}
-		sort($groups, SORT_FLAG_CASE);
+		sort($players, SORT_FLAG_CASE);
 		$worlds = [];
 		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
 			if(!$level->isClosed()) {
@@ -84,10 +69,10 @@ class ListGroupPermissions extends PluginCommand {
 		sort($worlds, SORT_FLAG_CASE);
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
 			[
-				"name" => "group",
+				"name" => "player",
 				"type" => "stringenum",
 				"optional" => false,
-				"enumtext" => $groups
+				"enum_values" => $players
 			],
 			[
 				"name" => "world",

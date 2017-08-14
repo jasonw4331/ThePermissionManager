@@ -41,7 +41,7 @@ class UnsetGroupPermission extends PluginCommand {
 			return false;
 		}
 		$group = $args[0];
-		if(!in_array($group, array_keys($this->getPlugin()->getGroups()->getAll())) and !$this->getPlugin()->isAlias($group)) {
+		if(!in_array($group, $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true)) and !$this->getPlugin()->isAlias($group)) {
 			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
 			return true;
 		}
@@ -111,7 +111,7 @@ class UnsetGroupPermission extends PluginCommand {
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
 		$groups = [];
-		foreach($this->getPlugin()->getGroups()->getAll() as $group => $data) {
+		foreach($this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true) as $group) {
 			$groups[] = $group;
 		}
 		sort($groups, SORT_FLAG_CASE);

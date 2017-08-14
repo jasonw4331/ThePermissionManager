@@ -1,6 +1,7 @@
 <?php
 namespace jasonwynn10\PermMgr;
 
+use jasonwynn10\PermMgr\commands\Groups;
 use jasonwynn10\PermMgr\commands\ListGroupPermissions;
 use jasonwynn10\PermMgr\commands\ListUserPermissions;
 use jasonwynn10\PermMgr\commands\PluginPermissions;
@@ -50,7 +51,6 @@ class ThePermissionManager extends PluginBase {
 	private $baseLang = null;
 
 	public function onLoad() {
-		SpoonDetector::printSpoon($this,"spoon.txt");
 		$this->saveDefaultConfig();
 		$this->getConfig()->reload();
 		$this->groupProvider = new GroupManager($this);
@@ -67,7 +67,6 @@ class ThePermissionManager extends PluginBase {
 			default:
 				$this->playerProvider = new YAMLProvider($this);
 		}
-
 		$this->superAdmins = $this->getConfig()->get("superadmin-groups", []);
 	}
 
@@ -83,8 +82,10 @@ class ThePermissionManager extends PluginBase {
 			new ListGroupPermissions($this),
 			new ReloadPermissions($this),
 			new PluginPermissions($this),
-			new SetGroup($this)
+			new SetGroup($this),
+			new Groups($this)
 		]);
+		SpoonDetector::printSpoon($this,"spoon.txt");
 	}
 
 	public function onDisable() {
@@ -93,6 +94,7 @@ class ThePermissionManager extends PluginBase {
 			$permissions[] = $permission->getName();
 		}
 		$permissions = implode(PHP_EOL, $permissions);
+		@unlink($this->getDataFolder()."Permission_List.txt");
 		@file_put_contents($this->getDataFolder()."Permission_List.txt", $permissions);
 		foreach($this->getServer()->getOnlinePlayers() as $player) {
 			$this->detachPlayer($player);
@@ -327,11 +329,7 @@ class ThePermissionManager extends PluginBase {
 	 * @return bool
 	 */
 	public function isAlias(string &$group) : bool {
-		if(in_array($group, $this->getGroups()->getAliases())) {
-			$group = array_search($group, $this->getGroups()->getAliases());
-			return true;
-		}
-		return false;
+		return $this->getGroups()->isAlias($group);
 	}
 
 	/**

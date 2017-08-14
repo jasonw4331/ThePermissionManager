@@ -41,7 +41,7 @@ class ListUserPermissions extends PluginCommand {
 		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
 		if($player instanceof Player) {
 			$permissions = [];
-			foreach($this->getPlugin()->getPlayerPermissions($player) as $permission) {
+			foreach($this->getPlugin()->getPlayerProvider()->getAllPlayerPermissions($player) as $permission) {
 				if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
 					$permissions[] = $permission;
 				}

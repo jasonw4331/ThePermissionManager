@@ -3,45 +3,55 @@ Guest:
   isDefault: true
   inheritance: []
   permissions:
+  - -pocketmine.broadcast.user
   - -pocketmine.command.me
   - -pocketmine.command.tell
-  - -pocketmine.broadcast.user
+  - pocketmine.command.help
+  - pocketmine.command.kill.self
   - pocketmine.command.list
   - pocketmine.command.plugins
-  - pocketmine.command.whitelist.list
-  - pocketmine.command.version
   - pocketmine.command.seed
   - pocketmine.command.status
   - pocketmine.command.transferserver
-  - pocketmine.command.help
+  - pocketmine.command.version
+  - pocketmine.command.whitelist.list
+  worlds: []
+Builder:
+  alias: bld
+  isDefault: false
+  inheritance:
+  - Guest
+  permissions:
+  - pocketmine.command.gamemode
+  - pocketmine.command.me
+  - pocketmine.command.particle
+  - pocketmine.command.save.perform
+  - pocketmine.command.status
+  - pocketmine.command.teleport
+  - pocketmine.command.time
+  - pocketmine.spawnprotect.bypass
   worlds: []
 Moderator:
   alias: mod
   isDefault: false
   inheritance:
-  - Guest
+  - Builder
   permissions:
-  - pocketmine.broadcast
-  - pocketmine.command.ban
-  - pocketmine.command.unban
-  - pocketmine.command.me
-  - pocketmine.command.tell
-  - pocketmine.command.give
-  - pocketmine.command.kick
-  - pocketmine.command.teleport
-  - pocketmine.command.time
-  - pocketmine.command.kill
-  - pocketmine.command.save
-  - pocketmine.command.say
-  - pocketmine.command.effect
-  - pocketmine.command.enchant
-  - pocketmine.command.particle
-  - pocketmine.command.teleport
-  - pocketmine.command.reload
-  - pocketmine.command.gamemode
-  - pocketmine.command.title
   - PermManager.command.listuserpermissions
   - PermManager.command.pluginpermissions
+  - pocketmine.broadcast
+  - pocketmine.command.ban
+  - pocketmine.command.effect
+  - pocketmine.command.enchant
+  - pocketmine.command.give
+  - pocketmine.command.kick
+  - pocketmine.command.kill
+  - pocketmine.command.reload
+  - pocketmine.command.say
+  - pocketmine.command.teleport
+  - pocketmine.command.tell
+  - pocketmine.command.title
+  - pocketmine.command.unban
   worlds: []
 Admin:
   alias: adm
@@ -49,11 +59,11 @@ Admin:
   inheritance:
   - Moderator
   permissions:
-  - pocketmine.command.whitelist
-  - pocketmine.command.op
+  - PermManager.command
   - pocketmine.command.defaultgamemode
   - pocketmine.command.gc
-  - PermManager.command
+  - pocketmine.command.op
+  - pocketmine.command.whitelist
   worlds: []
 CoOwner:
   alias: cwn
@@ -61,9 +71,9 @@ CoOwner:
   inheritance:
   - Admin
   permissions:
-  - pocketmine.command.spawnpoint
-  - pocketmine.command.setworldspawn
   - PermManager
+  - pocketmine.command.setworldspawn
+  - pocketmine.command.spawnpoint
   worlds: []
 Owner:
   alias: own
@@ -71,7 +81,7 @@ Owner:
   inheritance:
   - CoOwner
   permissions:
-  - "*"
+  - '*'
   - pocketmine.command.dumpmemory
   - pocketmine.command.timings
   worlds: []

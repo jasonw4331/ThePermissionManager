@@ -49,6 +49,11 @@ class MySQLProvider extends DataProvider {
 		throw new \BadMethodCallException("mysql doesn't have a Config!");
 	}
 
+	/**
+	 * @param IPlayer $player
+	 *
+	 * @return string
+	 */
 	public function getGroup(IPlayer $player) : string {
 		$result = $this->db->query("SELECT * FROM players WHERE username = '{$this->db->real_escape_string($player->getName())}';");
 		if($result instanceof \mysqli_result) {
@@ -60,6 +65,11 @@ class MySQLProvider extends DataProvider {
 
 	}
 
+	/**
+	 * @param IPlayer $player
+	 *
+	 * @return array
+	 */
 	public function getPlayerPermissions(IPlayer $player) : array {
 		$result = $this->db->query("SELECT * FROM players WHERE username = '{$this->db->real_escape_string($player->getName())}';");
 		if($result instanceof \mysqli_result) {
@@ -71,6 +81,12 @@ class MySQLProvider extends DataProvider {
 		}
 	}
 
+	/**
+	 * @param IPlayer $player
+	 * @param array $permissions
+	 *
+	 * @return bool
+	 */
 	public function setPlayerPermissions(IPlayer $player, array $permissions) : bool {
 		$permissions = implode(", ", $permissions);
 		$result = $this->db->query("INSERT INTO players(userName, group, permissions) VALUES ('" . $this->db->escape_string($player->getName()) . "', '" . $this->db->escape_string($player->getName()) . "', '" . $this->db->escape_string($permissions) . "') ON DUPLICATE KEY UPDATE group = VALUES(group), permissions = VALUES(permissions);");
