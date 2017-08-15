@@ -38,3 +38,7 @@ permissions:
             default: true
           PermManager.command.userinformation:
             default: op
+          PermManager.command.groupinformation:
+            default: true
+          PermManager.command.defaultgroup:
+            default: op

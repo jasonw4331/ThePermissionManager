@@ -16,10 +16,10 @@ class DefaultGroup extends PluginCommand {
 	 * @param ThePermissionManager $plugin
 	 */
 	public function __construct(ThePermissionManager $plugin) {
-		parent::__construct($plugin->getLanguage()->get("groupinformation.name"), $plugin);
-		$this->setPermission("PermManager.command.groupinformation");
-		$this->setUsage($plugin->getLanguage()->get("groupinformation.usage"));
-		$this->setDescription($plugin->getLanguage()->get("groupinformation.desc"));
+		parent::__construct($plugin->getLanguage()->get("defaultgroup.name"), $plugin);
+		$this->setPermission("PermManager.command.defaultgroup");
+		$this->setUsage($plugin->getLanguage()->get("defaultgroup.usage"));
+		$this->setDescription($plugin->getLanguage()->get("defaultgroup.desc"));
 		$this->setPermissionMessage($plugin->getLanguage()->get("nopermission"));
 	}
 
