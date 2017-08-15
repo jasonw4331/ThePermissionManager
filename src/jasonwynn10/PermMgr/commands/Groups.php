@@ -55,32 +55,7 @@ class Groups extends PluginCommand {
 	 */
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
-		$players = [];
-		foreach($this->getPlugin()->getServer()->getOnlinePlayers() as $player) {
-			$players[] = $player->getName();
-		}
-		sort($players, SORT_FLAG_CASE);
-		$worlds = [];
-		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
-			if(!$level->isClosed()) {
-				$worlds[] = $level->getName();
-			}
-		}
-		sort($worlds, SORT_FLAG_CASE);
-		$commandData["overloads"]["default"]["input"]["parameters"] = [
-			[
-				"name" => "player",
-				"type" => "stringenum",
-				"optional" => false,
-				"enum_values" => $players
-			],
-			[
-				"name" => "world",
-				"type" => "stringenum",
-				"optional" => true,
-				"enum_values" => $worlds
-			]
-		];
+		$commandData["overloads"]["default"]["input"]["parameters"] = [];
 		$commandData["permission"] = $this->getPermission();
 		return $commandData;
 	}

@@ -1,6 +1,8 @@
 <?php
 namespace jasonwynn10\PermMgr;
 
+use jasonwynn10\PermMgr\commands\DefaultGroup;
+use jasonwynn10\PermMgr\commands\GroupInformation;
 use jasonwynn10\PermMgr\commands\Groups;
 use jasonwynn10\PermMgr\commands\ListGroupPermissions;
 use jasonwynn10\PermMgr\commands\ListUserPermissions;
@@ -11,6 +13,7 @@ use jasonwynn10\PermMgr\commands\SetGroupPermission;
 use jasonwynn10\PermMgr\commands\SetUserPermission;
 use jasonwynn10\PermMgr\commands\UnsetGroupPermission;
 use jasonwynn10\PermMgr\commands\UnsetUserPermission;
+use jasonwynn10\PermMgr\commands\UserInformation;
 use jasonwynn10\PermMgr\event\EventListener;
 use jasonwynn10\PermMgr\event\GroupChangeEvent;
 use jasonwynn10\PermMgr\event\GroupPermissionAddEvent;
@@ -83,7 +86,10 @@ class ThePermissionManager extends PluginBase {
 			new ReloadPermissions($this),
 			new PluginPermissions($this),
 			new SetGroup($this),
-			new Groups($this)
+			new Groups($this),
+			new UserInformation($this),
+			new GroupInformation($this),
+			new DefaultGroup($this)
 		]);
 		SpoonDetector::printSpoon($this,"spoon.txt");
 	}

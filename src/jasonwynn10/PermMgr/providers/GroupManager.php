@@ -85,6 +85,19 @@ class GroupManager {
 	/**
 	 * @param string $group
 	 *
+	 * @return bool
+	 */
+	public function setDefaultGroup(string $group) : bool {
+		$old = $this->defaultGroup;
+		$this->getGroupsConfig()->setNested($old.".isDefault", false);
+		$this->defaultGroup = $group;
+		$this->getGroupsConfig()->setNested($group.".isDefault", true);
+		return $this->getGroupsConfig()->save();
+	}
+
+	/**
+	 * @param string $group
+	 *
 	 * @return string[]
 	 */
 	public function getGroupPermissions(string $group) : array {

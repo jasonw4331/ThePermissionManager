@@ -1,6 +1,6 @@
 name: ThePermissionManager
 main: jasonwynn10\PermMgr\ThePermissionManager
-version: 0.2.6
+version: 0.2.7
 api:
  - 3.0.0
  - 3.0.0-ALPHA7
@@ -36,3 +36,5 @@ permissions:
             default: op
           PermManager.command.groups:
             default: true
+          PermManager.command.userinformation:
+            default: op

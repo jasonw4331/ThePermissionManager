@@ -7,6 +7,7 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDataSaveEvent;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\Player;
 
 class EventListener implements Listener {
 	/** @var ThePermissionManager $plugin */
@@ -46,6 +47,10 @@ class EventListener implements Listener {
 	 */
 	public function onPlayerSave(PlayerDataSaveEvent $ev) {
 		$player = $ev->getPlayer();
-		$this->plugin->getPlayerProvider()->sortPlayerPermissions($player);
+		if($player->getPlayer() instanceof Player) {
+			if($this->plugin->isAttached($player->getPlayer())) {
+				$this->plugin->getPlayerProvider()->sortPlayerPermissions($player);
+			}
+		}
 	}
 }
