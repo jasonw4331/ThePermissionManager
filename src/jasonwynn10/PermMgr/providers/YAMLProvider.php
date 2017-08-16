@@ -45,23 +45,35 @@ class YAMLProvider extends DataProvider {
 
 	/**
 	 * @param IPlayer $player
+	 * @param string $levelName
 	 *
 	 * @return string[]
 	 */
-	public function getPlayerPermissions(IPlayer $player) : array {
-		return $this->getPlayerConfig($player)->get("permissions", []);
+	public function getPlayerPermissions(IPlayer $player, string $levelName = "") : array {
+		if(empty($levelName)) {
+			return $this->getPlayerConfig($player)->get("permissions", []);
+		}else{
+			return $this->getPlayerConfig($player)->getNested("worlds.$levelName", []);
+		}
 	}
 
 	/**
 	 * @param IPlayer $player
 	 * @param array $data
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function setPlayerPermissions(IPlayer $player, array $data) : bool {
-		$config = $this->getPlayerConfig($player);
-		$config->set("permissions", $data);
-		return $config->save();
+	public function setPlayerPermissions(IPlayer $player, array $data, string $levelName = "") : bool {
+		if(empty($levelName)) {
+			$config = $this->getPlayerConfig($player);
+			$config->set("permissions", $data);
+			return $config->save();
+		}else{
+			$config = $this->getPlayerConfig($player);
+			$config->setNested("worlds.$levelName", $data);
+			return $config->save();
+		}
 	}
 
 	/**

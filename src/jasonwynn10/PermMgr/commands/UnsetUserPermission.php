@@ -110,7 +110,7 @@ class UnsetUserPermission extends PluginCommand {
 				"name" => "permission",
 				"type" => "stringenum",
 				"optional" => false,
-				"enum_valuas" => $permissions
+				"enum_values" => $permissions
 			],
 			[
 				"name" => "world",

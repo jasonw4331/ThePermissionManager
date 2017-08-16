@@ -97,21 +97,26 @@ class GroupManager {
 
 	/**
 	 * @param string $group
+	 * @param string $levelName
 	 *
 	 * @return string[]
 	 */
-	public function getGroupPermissions(string $group) : array {
-		$groupData = $this->config->get($group);
-		return $groupData["permissions"];
+	public function getGroupPermissions(string $group, string $levelName = "") : array {
+		if(empty($levelName)) {
+			return $this->config->getNested("$group.premissions", []);
+		}else{
+			return $this->config->getNested("$group.worlds.$levelName", []);
+		}
 	}
 
 	/**
 	 * @param string $group
+	 * @param string $levelName
 	 *
 	 * @return string[]
 	 */
-	public function getAllGroupPermissions(string $group) : array {
-		$groupPerms = array_merge($this->getGroupPermissions($group), $this->getInheritedPermissions($group));
+	public function getAllGroupPermissions(string $group, string $levelName = "") : array {
+		$groupPerms = array_merge($this->getGroupPermissions($group, $levelName), $this->getInheritedPermissions($group, $levelName));
 		sort($groupPerms, SORT_NATURAL | SORT_FLAG_CASE);
 		return array_unique($groupPerms);
 	}
@@ -119,41 +124,47 @@ class GroupManager {
 	/**
 	 * @param string $group
 	 * @param string[] $permissions
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function setGroupPermissions(string $group, array $permissions) : bool {
-		$groupData = $this->config->get($group);
-		$groupData["permissions"] = $permissions;
-		$this->config->set($group, $groupData);
-		return $this->config->save();
+	public function setGroupPermissions(string $group, array $permissions, string $levelName = "") : bool {
+		if(empty($levelName)) {
+			$this->config->setNested("$group.permissions", $permissions);
+			return $this->config->save();
+		}else{
+			$this->config->setNested("$group.worlds.$levelName", $permissions);
+			return $this->config->save();
+		}
 	}
 
 	/**
 	 * @param string $group
 	 * @param string[] $permissions
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function addGroupPermissions(string $group, array $permissions = []) : bool {
-		$permissions = array_merge($permissions, $this->getGroupPermissions($group));
-		return $this->setGroupPermissions($group, $permissions);
+	public function addGroupPermissions(string $group, array $permissions = [], string $levelName = "") : bool {
+		$permissions = array_merge($permissions, $this->getGroupPermissions($group, $levelName));
+		return $this->setGroupPermissions($group, $permissions, $levelName);
 	}
 
 	/**
 	 * @param string $group
 	 * @param string[] $permissions
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function removeGroupPermissions(string $group, array $permissions = []) : bool {
-		$perms = $this->getGroupPermissions($group);
+	public function removeGroupPermissions(string $group, array $permissions = [], string $levelName = "") : bool {
+		$perms = $this->getGroupPermissions($group, $levelName);
 		foreach($permissions as $permission) {
-			if(($key = array_search($permission, $this->getGroupPermissions($group))) !== false) {
+			if(($key = array_search($permission, $this->getGroupPermissions($group, $levelName))) !== false) {
 				unset($perms[$key]);
 			}
 		}
-		return $this->setGroupPermissions($group, $perms);
+		return $this->setGroupPermissions($group, $perms, $levelName);
 	}
 
 	/**
@@ -166,22 +177,31 @@ class GroupManager {
 		$permissions = array_unique($permissions);
 		sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
 		$this->setGroupPermissions($group, $permissions);
+		foreach($this->plugin->getServer()->getLevels() as $level) {
+			$permissions = array_unique($this->getGroupPermissions($group, $level->getName()));
+			sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
+			$this->setGroupPermissions($group, $permissions, $level->getName());
+		}
 		return true;
 	}
 
 	/**
 	 * @param string $group
+	 * @param string $levelName
 	 *
 	 * @return string[] includes set and unset permissions from config
 	 */
-	public function getInheritedPermissions(string $group) : array {
+	public function getInheritedPermissions(string $group, string $levelName = "") : array {
 		$this->config->reload();
 		$permissions = [];
-		foreach($this->config->getAll()[$group]["inheritance"] as $parentGroup) {
+		foreach($this->config->getNested("$group.inheritance", []) as $parentGroup) {
 			$this->isAlias($parentGroup); //fixes alias to be real name
-			foreach($this->getInheritedPermissions($parentGroup) as $parentPermission) {
+			foreach($this->getInheritedPermissions($parentGroup, $levelName) as $parentPermission) {
 				$permissions[] = $parentPermission;
 			}
+		}
+		foreach($this->getGroupPermissions($group, $levelName) as $permission) {
+			$permissions[] = $permission;
 		}
 		if(($key = array_search("-*", $permissions)) !== false) {
 			unset($permissions[$key]);

@@ -19,7 +19,7 @@ class EventListener implements Listener {
 	}
 
 	/**
-	 * Lowest priority to give players the permissions to bypass login systems
+	 * Lowest priority to give players the permissions to attempt to bypass some login systems
 	 * @priority LOWEST
 	 * @ignoreCancelled true
 	 *

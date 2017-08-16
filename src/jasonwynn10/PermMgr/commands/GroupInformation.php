@@ -44,14 +44,14 @@ class GroupInformation extends PluginCommand {
 		}
 		$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("groupinformation.header", [$group]));
 		$config = $this->getPlugin()->getGroups()->getGroupsConfig();
-		if(!empty($config->get($group.".alias", ''))) {
-			$alias = $config->get($group.".alias");
+		if(!empty($config->getNested($group.".alias", ''))) {
+			$alias = $config->getNested($group.".alias");
 			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("groupinformation.aliasinfo", [$alias]));
 		}
-		if($config->get($group.".isDefault", false)) {
+		if($config->getNested($group.".isDefault", false)) {
 			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("groupinformation.default", [$group]));
 		}
-		$parents = implode(", ", $config->get($group.".inheritance", []));
+		$parents = implode(", ", $config->getNested($group.".inheritance", []));
 		$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("groupinformation.parents", [$parents]));
 		return true;
 	}

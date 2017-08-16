@@ -28,55 +28,60 @@ abstract class DataProvider {
 
 	/**
 	 * @param IPlayer $player
+	 * @param string $levelName
 	 *
 	 * @return string[]
 	 */
-	abstract function getPlayerPermissions(IPlayer $player) : array;
+	abstract function getPlayerPermissions(IPlayer $player, string $levelName = "") : array;
 
 	/**
 	 * @param IPlayer $player
+	 * @param string $levelName
 	 *
 	 * @return string[]
 	 */
-	public function getAllPlayerPermissions(IPlayer $player) : array {
-		$playerPerms = array_merge($this->getPlayerPermissions($player), $this->plugin->getGroups()->getAllGroupPermissions($this->getGroup($player)));
+	public function getAllPlayerPermissions(IPlayer $player, string $levelName = "") : array {
+		$playerPerms = array_merge($this->getPlayerPermissions($player, $levelName), $this->plugin->getGroups()->getAllGroupPermissions($this->getGroup($player), $levelName));
 		return array_unique($playerPerms);
 	}
 
 	/**
 	 * @param IPlayer $player
 	 * @param string[] $permissions
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	abstract function setPlayerPermissions(IPlayer $player, array $permissions) : bool;
+	abstract function setPlayerPermissions(IPlayer $player, array $permissions, string $levelName = "") : bool;
 
 	/**
 	 * @param IPlayer $player
 	 * @param string[] $permissions
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function addPlayerPermissions(IPlayer $player, array $permissions = []) : bool {
-		$perms = $this->getPlayerPermissions($player);
+	public function addPlayerPermissions(IPlayer $player, array $permissions = [], string $levelName = "") : bool {
+		$perms = $this->getPlayerPermissions($player, $levelName);
 		$perms = array_merge($perms, $permissions);
-		return $this->setPlayerPermissions($player, $perms);
+		return $this->setPlayerPermissions($player, $perms, $levelName);
 	}
 
 	/**
 	 * @param IPlayer $player
 	 * @param string[] $permissions
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function removePlayerPermissions(IPlayer $player, array $permissions = []) : bool {
-		$perms = $this->getPlayerPermissions($player);
+	public function removePlayerPermissions(IPlayer $player, array $permissions = [], string $levelName = "") : bool {
+		$perms = $this->getPlayerPermissions($player, $levelName);
 		foreach($permissions as $permission) {
-			if(($key = array_search($permission, $this->getPlayerPermissions($player))) !== false) {
+			if(($key = array_search($permission, $this->getPlayerPermissions($player, $levelName))) !== false) {
 				unset($perms[$key]);
 			}
 		}
-		return $this->setPlayerPermissions($player, $perms);
+		return $this->setPlayerPermissions($player, $perms, $levelName);
 	}
 
 	/**
@@ -85,10 +90,15 @@ abstract class DataProvider {
 	 * @return bool
 	 */
 	public function sortPlayerPermissions(IPlayer $player) : bool {
-		$permissions = $this->getPlayerPermissions($player);
-		$permissions = array_unique($permissions);
+		$permissions = array_unique($this->getPlayerPermissions($player));
 		sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
-		return $this->setPlayerPermissions($player, $permissions);
+		$this->setPlayerPermissions($player, $permissions);
+		foreach($this->plugin->getServer()->getLevels() as $level) {
+			$permissions = array_unique($this->getPlayerPermissions($player, $level->getName()));
+			sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
+			$this->setPlayerPermissions($player, $permissions, $level->getName());
+		}
+		return true;
 	}
 
 	/**

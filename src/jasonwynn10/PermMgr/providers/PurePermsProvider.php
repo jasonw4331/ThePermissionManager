@@ -31,23 +31,35 @@ class PurePermsProvider extends DataProvider {
 
 	/**
 	 * @param IPlayer $player
+	 * @param string $levelName
 	 *
 	 * @return array
 	 */
-	public function getPlayerPermissions(IPlayer $player) : array {
-		return $this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".permissions", []);
+	public function getPlayerPermissions(IPlayer $player, string $levelName = "") : array {
+		if(empty($levelName)) {
+			return $this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".permissions", []);
+		}else{
+			return $this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".worlds.$levelName", []);
+		}
 	}
 
 	/**
 	 * @param IPlayer $player
 	 * @param array $permissions
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function setPlayerPermissions(IPlayer $player, array $permissions) : bool {
-		$config = $this->getPlayerConfig($player);
-		$config->setNested(strtolower($player->getName()).".permissions", $permissions);
-		return $config->save();
+	public function setPlayerPermissions(IPlayer $player, array $permissions, string $levelName = "") : bool {
+		if(empty($levelName)) {
+			$config = $this->getPlayerConfig($player);
+			$config->setNested(strtolower($player->getName()).".permissions", $permissions);
+			return $config->save();
+		}else{
+			$config = $this->getPlayerConfig($player);
+			$config->setNested(strtolower($player->getName()).".worlds.$levelName", $permissions);
+			return $config->save();
+		}
 	}
 
 	/**

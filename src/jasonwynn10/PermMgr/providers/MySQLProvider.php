@@ -67,10 +67,11 @@ class MySQLProvider extends DataProvider {
 
 	/**
 	 * @param IPlayer $player
+	 * @param string $levelName
 	 *
 	 * @return array
 	 */
-	public function getPlayerPermissions(IPlayer $player) : array {
+	public function getPlayerPermissions(IPlayer $player, string $levelName = "") : array {
 		$result = $this->db->query("SELECT * FROM players WHERE username = '{$this->db->real_escape_string($player->getName())}';");
 		if($result instanceof \mysqli_result) {
 			$arr = $result->fetch_assoc();
@@ -84,10 +85,11 @@ class MySQLProvider extends DataProvider {
 	/**
 	 * @param IPlayer $player
 	 * @param array $permissions
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function setPlayerPermissions(IPlayer $player, array $permissions) : bool {
+	public function setPlayerPermissions(IPlayer $player, array $permissions, string $levelName = "") : bool {
 		$permissions = implode(", ", $permissions);
 		$result = $this->db->query("INSERT INTO players(userName, group, permissions) VALUES ('" . $this->db->escape_string($player->getName()) . "', '" . $this->db->escape_string($player->getName()) . "', '" . $this->db->escape_string($permissions) . "') ON DUPLICATE KEY UPDATE group = VALUES(group), permissions = VALUES(permissions);");
 		if($result instanceof \mysqli_result) {

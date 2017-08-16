@@ -69,7 +69,7 @@ class PluginPermissions extends PluginCommand {
 	 */
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
-		$names = [];
+		$names = ["pocketmine"];
 		foreach($this->getPlugin()->getServer()->getPluginManager()->getPlugins() as $plugin) {
 			$names[] = $plugin->getName();
 		}
