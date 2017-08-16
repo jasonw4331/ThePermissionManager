@@ -44,12 +44,26 @@ class ListGroupPermissions extends PluginCommand {
 			return true;
 		}
 		$permissions = [];
-		foreach($this->getPlugin()->getGroups()->getAllGroupPermissions($group) as $permission) {
-			if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
-				$permissions[] = $permission;
+		if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[1])) {
+			$world = $args[1];
+			if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+				$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+				return true;
 			}
+			foreach($this->getPlugin()->getGroups()->getAllGroupPermissions($group, $world) as $permission) {
+				if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
+					$permissions[] = $permission;
+				}
+			}
+			sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
+		}else{
+			foreach($this->getPlugin()->getGroups()->getAllGroupPermissions($group) as $permission) {
+				if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
+					$permissions[] = $permission;
+				}
+			}
+			sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
 		}
-		sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
 		foreach($permissions as $permission) {
 			$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("listgrouppermissions.list", [$permission]));
 		}

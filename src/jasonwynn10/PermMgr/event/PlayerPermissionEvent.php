@@ -13,10 +13,11 @@ class PlayerPermissionEvent extends PermissionEvent {
 	 * @param ThePermissionManager $plugin
 	 * @param Player $player
 	 * @param Permission|null $permission
+	 * @param string $levelName
 	 * @param bool $isGroup
 	 */
-	public function __construct(ThePermissionManager $plugin, Player $player, Permission $permission = null, $isGroup = false){
-		parent::__construct($plugin, $permission, $isGroup);
+	public function __construct(ThePermissionManager $plugin, Player $player, Permission $permission = null, string $levelName = "", bool $isGroup = false){
+		parent::__construct($plugin, $permission, $levelName, $isGroup);
 		$this->player = $player;
 	}
 

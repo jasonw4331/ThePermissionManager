@@ -13,10 +13,10 @@ class GroupPermissionEvent extends PermissionEvent {
 	 * @param ThePermissionManager $plugin
 	 * @param string $group
 	 * @param Permission|null $permission
-	 * @param bool $isGroup
+	 * @param string $levelName
 	 */
-	public function __construct(ThePermissionManager $plugin, string $group, Permission $permission = null, $isGroup = true) {
-		parent::__construct($plugin, $permission, $isGroup);
+	public function __construct(ThePermissionManager $plugin, string $group, Permission $permission = null, string $levelName = "") {
+		parent::__construct($plugin, $permission, $levelName, true);
 		$this->group = $group;
 	}
 

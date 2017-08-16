@@ -41,12 +41,26 @@ class ListUserPermissions extends PluginCommand {
 		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
 		if($player instanceof Player) {
 			$permissions = [];
-			foreach($this->getPlugin()->getPlayerProvider()->getAllPlayerPermissions($player) as $permission) {
-				if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
-					$permissions[] = $permission;
+			if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[1])) {
+				$world = $args[1];
+				if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+					$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+					return true;
 				}
+				foreach($this->getPlugin()->getPlayerProvider()->getAllPlayerPermissions($player, $world) as $permission) {
+					if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
+						$permissions[] = $permission;
+					}
+				}
+				sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
+			}else{
+				foreach($this->getPlugin()->getPlayerProvider()->getAllPlayerPermissions($player) as $permission) {
+					if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
+						$permissions[] = $permission;
+					}
+				}
+				sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
 			}
-			sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
 			foreach($permissions as $permission) {
 				$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("listuserpermissions.list", [$permission]));
 			}

@@ -134,6 +134,7 @@ class ThePermissionManager extends PluginBase {
 		$attachment = $ev->getplayer()->addAttachment($this);
 		$this->perms[$ev->getplayer()->getId()] = $attachment;
 		$this->playerProvider->init($ev->getplayer());
+		//TODO multiworld
 		$groupPerms = $this->getGroups()->getAllGroupPermissions($this->getPlayerProvider()->getGroup($ev->getplayer()));
 		foreach($groupPerms as $permission) {
 			if($this->sortPermissionConfigStrings($permission)) {
@@ -179,11 +180,12 @@ class ThePermissionManager extends PluginBase {
 	 * @param Player $player
 	 * @param Permission $permission
 	 * @param bool $group
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function addPlayerPermission(Player $player, Permission $permission, bool $group = false) : bool {
-		$ev = new PlayerPermissionAddEvent($this, $player, $permission, $group);
+	public function addPlayerPermission(Player $player, Permission $permission, bool $group = false, string $levelName = "") : bool {
+		$ev = new PlayerPermissionAddEvent($this, $player, $permission, $group, $levelName);
 		if(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true) !== true) {
 			$ev->setCancelled();
 		}
@@ -199,7 +201,7 @@ class ThePermissionManager extends PluginBase {
 		$attachment->setPermission($ev->getPermission(), true);
 
 		if(!$ev->isGroup()) {
-			$this->playerProvider->setPlayerPermissions($ev->getPlayer(), [$permission->getName()]);
+			$this->playerProvider->setPlayerPermissions($ev->getPlayer(), [$permission->getName()], $ev->getLevelName());
 			$this->playerProvider->sortPlayerPermissions($ev->getPlayer());
 		}
 		return true;
@@ -209,11 +211,12 @@ class ThePermissionManager extends PluginBase {
 	 * @param Player $player
 	 * @param Permission $permission
 	 * @param bool $group
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function removePlayerPermission(Player $player, Permission $permission, bool $group = false) : bool {
-		$this->getServer()->getPluginManager()->callEvent($ev = new PlayerPermissionRemoveEvent($this, $player, $permission, $group));
+	public function removePlayerPermission(Player $player, Permission $permission, bool $group = false, string $levelName = "") : bool {
+		$this->getServer()->getPluginManager()->callEvent($ev = new PlayerPermissionRemoveEvent($this, $player, $permission, $group, $levelName));
 		if(!$this->isAttached($ev->getPlayer())) {
 			return false;
 		}
@@ -225,7 +228,7 @@ class ThePermissionManager extends PluginBase {
 		$attachment->setPermission($ev->getPermission(), false);
 
 		if(!$ev->isGroup()) {
-			$this->getPlayerProvider()->removePlayerPermissions($ev->getPlayer(), [$permission->getName()]);
+			$this->getPlayerProvider()->removePlayerPermissions($ev->getPlayer(), [$permission->getName()], $ev->getLevelName());
 		}
 		return true;
 	}
@@ -233,11 +236,12 @@ class ThePermissionManager extends PluginBase {
 	/**
 	 * @param string $group
 	 * @param Permission $permission
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function addGroupPermission(string $group, Permission $permission) : bool {
-		$ev = new GroupPermissionAddEvent($this, $group, $permission);
+	public function addGroupPermission(string $group, Permission $permission, string $levelName = "") : bool {
+		$ev = new GroupPermissionAddEvent($this, $group, $permission, $levelName);
 		if(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true) !== true) {
 			$ev->setCancelled();
 		}
@@ -245,7 +249,7 @@ class ThePermissionManager extends PluginBase {
 		if($ev->isCancelled()) {
 			return false;
 		}
-		$this->groupProvider->addGroupPermissions($ev->getGroup(), [$permission->getName()]);
+		$this->groupProvider->addGroupPermissions($ev->getGroup(), [$permission->getName()], $ev->getLevelName());
 		$this->groupProvider->sortGroupPermissions($ev->getGroup());
 		$this->reloadGroupPermissions();
 		$this->reloadPlayerPermissions();
@@ -255,22 +259,22 @@ class ThePermissionManager extends PluginBase {
 	/**
 	 * @param string $group
 	 * @param Permission $permission
+	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function removeGroupPermission(string $group, Permission $permission) : bool {
-		$this->getServer()->getPluginManager()->callEvent($ev = new GroupPermissionRemoveEvent($this, $group, $permission));
+	public function removeGroupPermission(string $group, Permission $permission, string $levelName = "") : bool {
+		$this->getServer()->getPluginManager()->callEvent($ev = new GroupPermissionRemoveEvent($this, $group, $permission, $levelName));
 		if($ev->isCancelled() and !(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true))) {
 			return false;
 		}
 
-		$this->groupProvider->removeGroupPermissions($ev->getGroup(), [$permission->getName()]);
+		$this->groupProvider->removeGroupPermissions($ev->getGroup(), [$permission->getName()], $ev->getLevelName());
 		$this->groupProvider->sortGroupPermissions($ev->getGroup());
 		$this->reloadGroupPermissions();
 		$this->reloadPlayerPermissions();
 		return true;
 	}
-
 
 	/**
 	 * @param Player[] $players
