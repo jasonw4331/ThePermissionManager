@@ -346,11 +346,11 @@ class ThePermissionManager extends PluginBase {
 	 */
 	public function setPlayerGroup(Player $player, string $group) : bool {
 		$config = $this->getPlayerProvider()->getPlayerConfig($player);
-		$this->getServer()->getPluginManager()->callEvent($ev = new GroupChangeEvent($this, $config->get("group"), $group));
+		$this->getServer()->getPluginManager()->callEvent($ev = new GroupChangeEvent($this, $player, $config->get("group"), $group));
 		if($ev->isCancelled())
 			return false;
 		$config->set("group", $ev->getNewGroup());
-		$this->reloadPlayerPermissions([$player]);
+		$this->reloadPlayerPermissions([$ev->getPlayer()]);
 		return $config->save();
 	}
 
