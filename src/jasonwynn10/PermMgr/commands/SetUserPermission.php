@@ -102,11 +102,16 @@ class SetUserPermission extends PluginCommand {
 			$players[] = $player->getName();
 		}
 		sort($players, SORT_FLAG_CASE);
+		$permissions = [];
+		$playerPerms = $this->getPlugin()->getPlayerProvider()->getAllPlayerPermissions($player);
+		foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+			if(!in_array($permission->getName(), $playerPerms))
+				$permissions[] = $permission->getName();
+		}
+		sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
 		$worlds = [];
 		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
-			if(!$level->isClosed()) {
-				$worlds[] = $level->getName();
-			}
+			$worlds[] = $level->getName();
 		}
 		sort($worlds, SORT_FLAG_CASE);
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
@@ -118,8 +123,9 @@ class SetUserPermission extends PluginCommand {
 			],
 			[
 				"name" => "permission",
-				"type" => "rawtext",
-				"optional" => false
+				"type" => "stringenum",
+				"optional" => false,
+				"enum_valuas" => $permissions
 			],
 			[
 				"name" => "world",

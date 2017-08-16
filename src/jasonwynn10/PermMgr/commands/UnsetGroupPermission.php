@@ -110,16 +110,18 @@ class UnsetGroupPermission extends PluginCommand {
 	 */
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
-		$groups = [];
-		foreach($this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true) as $group) {
-			$groups[] = $group;
-		}
+		$groups = $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true);
 		sort($groups, SORT_FLAG_CASE);
+		$permissions = [];
+		$groupPerms = $this->getPlugin()->getGroups()->getAllGroupPermissions($this->getPlugin()->getPlayerProvider()->getGroup($player));
+		foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+			if(in_array($permission->getName(), $groupPerms))
+				$permissions[] = $permission->getName();
+		}
+		sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
 		$worlds = [];
 		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
-			if(!$level->isClosed()) {
-				$worlds[] = $level->getName();
-			}
+			$worlds[] = $level->getName();
 		}
 		sort($worlds, SORT_FLAG_CASE);
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
@@ -131,8 +133,9 @@ class UnsetGroupPermission extends PluginCommand {
 			],
 			[
 				"name" => "permission",
-				"type" => "rawtext",
-				"optional" => false
+				"type" => "stringenum",
+				"optional" => false,
+				"enum_valuas" => $permissions
 			],
 			[
 				"name" => "world",

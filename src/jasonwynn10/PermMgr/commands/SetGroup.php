@@ -98,10 +98,7 @@ class SetGroup extends PluginCommand {
 			$players[] = $player->getName();
 		}
 		sort($players, SORT_FLAG_CASE);
-		$groups = [];
-		foreach($this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true) as $group) {
-			$groups[] = $group;
-		}
+		$groups = $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true);
 		sort($groups, SORT_FLAG_CASE);
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
 			[
