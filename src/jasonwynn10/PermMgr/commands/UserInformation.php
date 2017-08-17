@@ -76,23 +76,12 @@ class UserInformation extends PluginCommand {
 			$players[] = $player->getName();
 		}
 		sort($players, SORT_FLAG_CASE);
-		$worlds = [];
-		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
-			$worlds[] = $level->getName();
-		}
-		sort($worlds, SORT_FLAG_CASE);
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
 			[
 				"name" => "player",
 				"type" => "stringenum",
 				"optional" => false,
 				"enum_values" => $players
-			],
-			[
-				"name" => "world",
-				"type" => "stringenum",
-				"optional" => true,
-				"enum_values" => $worlds
 			]
 		];
 		$commandData["permission"] = $this->getPermission();

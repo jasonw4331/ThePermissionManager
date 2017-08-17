@@ -51,32 +51,82 @@ class SetGroupPermission extends PluginCommand {
 					$permString = $args[1];
 					if($this->getPlugin()->sortPermissionConfigStrings($permString)) {
 						if($permString === "*") {
-							foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-								$this->getPlugin()->addGroupPermission($group, $permission);
+							if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+								$world = $args[2];
+								if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+									$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+									return true;
+								}
+								foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+									$this->getPlugin()->addGroupPermission($group, $permission, $world);
+								}
+							}else{
+								foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+									$this->getPlugin()->addGroupPermission($group, $permission);
+								}
 							}
 							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
 							return true;
 						}
-						$permission = new Permission($permString);
-						if(!$this->getPlugin()->addGroupPermission($group, $permission)) {
-							$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+							$world = $args[2];
+							if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+								$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+								return true;
+							}
+							$permission = new Permission($permString);
+							if(!$this->getPlugin()->addGroupPermission($group, $permission, $world)) {
+								$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+							}else{
+								$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+							}
 						}else{
-							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+							$permission = new Permission($permString);
+							if(!$this->getPlugin()->addGroupPermission($group, $permission)) {
+								$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+							}else{
+								$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+							}
 						}
 						return true;
 					}else{
 						if($permString === "*") {
-							foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-								$this->getPlugin()->removeGroupPermission($group, $permission);
+							if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+								$world = $args[2];
+								if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+									$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+									return true;
+								}
+								foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+									$this->getPlugin()->removeGroupPermission($group, $permission, $world);
+								}
+							}else{
+								foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+									$this->getPlugin()->removeGroupPermission($group, $permission);
+								}
 							}
 							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
 							return true;
 						}
-						$permission = new Permission($permString);
-						if(!$this->getPlugin()->removeGroupPermission($group, $permission)) {
-							$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+							$world = $args[2];
+							if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+								$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+								return true;
+							}
+							$permission = new Permission($permString);
+							if(!$this->getPlugin()->removeGroupPermission($group, $permission, $world)) {
+								$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+							}else{
+								$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+							}
 						}else{
-							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+							$permission = new Permission($permString);
+							if(!$this->getPlugin()->removeGroupPermission($group, $permission)) {
+								$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+							}else{
+								$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+							}
 						}
 						return true;
 					}
@@ -92,32 +142,82 @@ class SetGroupPermission extends PluginCommand {
 			$permString = $args[1];
 			if($this->getPlugin()->sortPermissionConfigStrings($permString)) {
 				if($permString === "*") {
-					foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-						$this->getPlugin()->addGroupPermission($group, $permission);
+					if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+						$world = $args[2];
+						if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+							$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+							return true;
+						}
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->addGroupPermission($group, $permission, $world);
+						}
+					}else{
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->addGroupPermission($group, $permission);
+						}
 					}
 					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
 					return true;
 				}
-				$permission = new Permission($permString);
-				if(!$this->getPlugin()->addGroupPermission($group, $permission)) {
-					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+					$world = $args[2];
+					if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+						$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+						return true;
+					}
+					$permission = new Permission($permString);
+					if(!$this->getPlugin()->addGroupPermission($group, $permission, $world)) {
+						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+					}else{
+						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+					}
 				}else{
-					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+					$permission = new Permission($permString);
+					if(!$this->getPlugin()->addGroupPermission($group, $permission)) {
+						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+					}else{
+						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+					}
 				}
 				return true;
 			}else{
 				if($permString === "*") {
-					foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-						$this->getPlugin()->removeGroupPermission($group, $permission);
+					if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+						$world = $args[2];
+						if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+							$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+							return true;
+						}
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->removeGroupPermission($group, $permission, $world);
+						}
+					}else{
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->removeGroupPermission($group, $permission);
+						}
 					}
 					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
 					return true;
 				}
-				$permission = new Permission($permString);
-				if(!$this->getPlugin()->removeGroupPermission($group, $permission)) {
-					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+					$world = $args[2];
+					if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+						$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+						return true;
+					}
+					$permission = new Permission($permString);
+					if(!$this->getPlugin()->removeGroupPermission($group, $permission, $world)) {
+						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+					}else{
+						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+					}
 				}else{
-					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+					$permission = new Permission($permString);
+					if(!$this->getPlugin()->removeGroupPermission($group, $permission)) {
+						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+					}else{
+						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
+					}
 				}
 				return true;
 			}

@@ -72,23 +72,12 @@ class GroupInformation extends PluginCommand {
 		$commandData = parent::generateCustomCommandData($player);
 		$groups = $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true);
 		sort($groups, SORT_FLAG_CASE);
-		$worlds = [];
-		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
-			$worlds[] = $level->getName();
-		}
-		sort($worlds, SORT_FLAG_CASE);
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
 			[
 				"name" => "group",
 				"type" => "stringenum",
 				"optional" => false,
 				"enumtext" => $groups
-			],
-			[
-				"name" => "world",
-				"type" => "stringenum",
-				"optional" => true,
-				"enum_values" => $worlds
 			]
 		];
 		$commandData["permission"] = $this->getPermission();

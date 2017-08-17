@@ -45,17 +45,42 @@ class UnsetUserPermission extends PluginCommand {
 				$permString = $args[1];
 				$permString = str_replace("-","", $permString);
 				if($permString === "*") {
-					foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-						$this->getPlugin()->removePlayerPermission($player, $permission, false);
+					if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+						$world = $args[2];
+						if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+							$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+							return true;
+						}
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->removePlayerPermission($player, $permission, false, $world);
+						}
+					}else{
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->removePlayerPermission($player, $permission, false);
+						}
 					}
 					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetuserpermission.success", [$player->getName()]));
 					return true;
 				}else{
-					$permission = new Permission($permString);
-					if(!$this->getPlugin()->removePlayerPermission($player, $permission, false)) {
-						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+					if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+						$world = $args[2];
+						if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+							$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+							return true;
+						}
+						$permission = new Permission($permString);
+						if(!$this->getPlugin()->removePlayerPermission($player, $permission, false, $world)) {
+							$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+						}else{
+							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetuserpermission.success", [$player->getName()]));
+						}
 					}else{
-						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetuserpermission.success", [$player->getName()]));
+						$permission = new Permission($permString);
+						if(!$this->getPlugin()->removePlayerPermission($player, $permission, false)) {
+							$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+						}else{
+							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetuserpermission.success", [$player->getName()]));
+						}
 					}
 					return true;
 				}

@@ -134,22 +134,41 @@ class ThePermissionManager extends PluginBase {
 		$attachment = $ev->getplayer()->addAttachment($this);
 		$this->perms[$ev->getplayer()->getId()] = $attachment;
 		$this->playerProvider->init($ev->getplayer());
-		//TODO multiworld
-		$groupPerms = $this->getGroups()->getAllGroupPermissions($this->getPlayerProvider()->getGroup($ev->getplayer()));
-		foreach($groupPerms as $permission) {
-			if($this->sortPermissionConfigStrings($permission)) {
-				$this->addPlayerPermission($ev->getplayer(), new Permission($permission), true);
-			}else{
-				$this->removePlayerPermission($ev->getplayer(), new Permission($permission), true);
+		if(!$this->getConfig()->get("enable-multiworld-perms", false)) {
+			$groupPerms = $this->getGroups()->getAllGroupPermissions($this->getPlayerProvider()->getGroup($ev->getplayer()));
+			foreach($groupPerms as $permission) {
+				if($this->sortPermissionConfigStrings($permission)) {
+					$this->addPlayerPermission($ev->getplayer(), new Permission($permission), true);
+				}else{
+					$this->removePlayerPermission($ev->getplayer(), new Permission($permission), true);
+				}
 			}
-		}
-		$this->playerProvider->sortPlayerPermissions($ev->getplayer());
-		$playerPerms = $this->playerProvider->getPlayerPermissions($ev->getplayer());
-		foreach($playerPerms as $permission) {
-			if($this->sortPermissionConfigStrings($permission)) {
-				$this->removePlayerPermission($ev->getplayer(), new Permission($permission), false);
-			}else{
-				$this->addPlayerPermission($ev->getplayer(), new Permission($permission), false);
+			$this->playerProvider->sortPlayerPermissions($ev->getplayer());
+			$playerPerms = $this->playerProvider->getPlayerPermissions($ev->getplayer());
+			foreach($playerPerms as $permission) {
+				if($this->sortPermissionConfigStrings($permission)) {
+					$this->removePlayerPermission($ev->getplayer(), new Permission($permission), false);
+				}else{
+					$this->addPlayerPermission($ev->getplayer(), new Permission($permission), false);
+				}
+			}
+		}else{
+			$groupPerms = $this->getGroups()->getAllGroupPermissions($this->getPlayerProvider()->getGroup($ev->getplayer()), $player->getLevel()->getName());
+			foreach($groupPerms as $permission) {
+				if($this->sortPermissionConfigStrings($permission)) {
+					$this->addPlayerPermission($ev->getplayer(), new Permission($permission), true, $player->getLevel()->getName());
+				}else{
+					$this->removePlayerPermission($ev->getplayer(), new Permission($permission), true, $player->getLevel()->getName());
+				}
+			}
+			$this->playerProvider->sortPlayerPermissions($ev->getplayer());
+			$playerPerms = $this->playerProvider->getPlayerPermissions($ev->getplayer(), $player->getLevel()->getName());
+			foreach($playerPerms as $permission) {
+				if($this->sortPermissionConfigStrings($permission)) {
+					$this->removePlayerPermission($ev->getplayer(), new Permission($permission), false, $player->getLevel()->getName());
+				}else{
+					$this->addPlayerPermission($ev->getplayer(), new Permission($permission), false, $player->getLevel()->getName());
+				}
 			}
 		}
 		return true;
