@@ -1,12 +1,13 @@
 name: ThePermissionManager
 main: jasonwynn10\PermMgr\ThePermissionManager
-version: 0.2.7
+version: 0.2.8
 api:
  - 3.0.0
  - 3.0.0-ALPHA7
 author: "jasonwynn10"
 description: "A modern PocketMine Permission Manager for PMMP servers"
 load: STARTUP
+softdepend: PurePerms
 extensions:
  - yaml
 permissions:

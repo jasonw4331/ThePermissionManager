@@ -92,6 +92,12 @@ class ThePermissionManager extends PluginBase {
 			new DefaultGroup($this)
 		]);
 		SpoonDetector::printSpoon($this,"spoon.txt");
+		//TODO find and disable other permission managers
+		/** @var \_64FF00\PurePerms\PurePerms|null $pureperms */
+		$pureperms = $this->getServer()->getPluginManager()->getPlugin("PurePerms");
+		if($pureperms !== null) {
+			$pureperms->setEnabled(false);
+		}
 	}
 
 	public function onDisable() {

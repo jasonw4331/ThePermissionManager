@@ -38,19 +38,4 @@ class EventListener implements Listener {
 	public function onQuit(PlayerQuitEvent $ev) {
 		$this->plugin->detachPlayer($ev->getPlayer());
 	}
-
-	/**
-	 * @priority MONITOR
-	 * @ignoreCancelled true
-	 *
-	 * @param PlayerDataSaveEvent $ev
-	 */
-	public function onPlayerSave(PlayerDataSaveEvent $ev) {
-		$player = $ev->getPlayer();
-		if($player->getPlayer() instanceof Player) {
-			if($this->plugin->isAttached($player->getPlayer())) {
-				$this->plugin->getPlayerProvider()->sortPlayerPermissions($player);
-			}
-		}
-	}
 }
