@@ -55,20 +55,25 @@ class ThePermissionManager extends PluginBase {
 
 	public function onLoad() {
 		$this->saveDefaultConfig();
-		$this->getConfig()->reload();
 		$this->groupProvider = new GroupManager($this);
+		if(file_exists($this->getServer()->getPluginPath()."PurePerms")) {
+			$this->importPurePerms(); // only works with the yamlv2 provider in PurePerms
+		}
+		$this->getConfig()->reload();
 		$lang = $this->getConfig()->get("lang", BaseLang::FALLBACK_LANGUAGE);
 		$this->baseLang = new BaseLang($lang,$this->getFile() . "resources/");
-		switch(strtolower($this->getConfig()->get("data-provider", "yaml"))) {
-			case "mysql":
-				$this->playerProvider = new MySQLProvider($this);
-			break;
-			case "pureperms":
-				$this->playerProvider = new PurePermsProvider($this);
-			break;
-			case "yaml":
-			default:
-				$this->playerProvider = new YAMLProvider($this);
+		if(!isset($this->playerProvider)) {
+			switch(strtolower($this->getConfig()->get("data-provider", "yaml"))) {
+				case "mysql":
+					$this->playerProvider = new MySQLProvider($this);
+				break;
+				case "pureperms":
+					$this->playerProvider = new PurePermsProvider($this);
+				break;
+				case "yaml":
+				default:
+					$this->playerProvider = new YAMLProvider($this);
+			}
 		}
 		$this->superAdmins = $this->getConfig()->get("superadmin-groups", []);
 	}
@@ -113,6 +118,20 @@ class ThePermissionManager extends PluginBase {
 		}
 	}
 
+	public function importPurePerms() {
+		//Players
+		if(file_exists($this->getServer()->getPluginPath()."PurePerms".DIRECTORY_SEPARATOR."players.yml")) {
+			$importedData = (new Config($this->getServer()->getPluginPath()."PurePerms".DIRECTORY_SEPARATOR."players.yml", Config::YAML))->getAll();
+			$this->playerProvider = new PurePermsProvider($this);
+			$this->playerProvider->getPlayerConfig()->setAll($importedData);
+		}
+		//Groups
+		if(file_exists($this->getServer()->getPluginPath()."PurePerms".DIRECTORY_SEPARATOR."groups.yml")) {
+			$importedData = (new Config($this->getServer()->getPluginPath()."PurePerms".DIRECTORY_SEPARATOR."groups.yml", Config::YAML))->getAll();
+			$this->groupProvider->getGroupsConfig()->setAll($importedData);
+		}
+	}
+
 	public function getLanguage() : BaseLang {
 		return $this->baseLang;
 	}
@@ -121,7 +140,7 @@ class ThePermissionManager extends PluginBase {
 		return $this->groupProvider;
 	}
 
-	public function getPlayerProvider() {
+	public function getPlayerProvider() : DataProvider {
 		return $this->playerProvider;
 	}
 
