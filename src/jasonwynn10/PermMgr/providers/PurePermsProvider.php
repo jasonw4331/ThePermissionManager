@@ -44,7 +44,7 @@ class PurePermsProvider extends DataProvider {
 	 *
 	 * @return Config
 	 */
-	public function getPlayerConfig(IPlayer $player) : Config {
+	public function getPlayerConfig(IPlayer $player = null) : Config {
 		return new Config($this->plugin->getDataFolder() . "players.yml", Config::YAML);
 	}
 

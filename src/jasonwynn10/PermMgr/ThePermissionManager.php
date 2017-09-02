@@ -30,6 +30,7 @@ use jasonwynn10\PermMgr\providers\YAMLProvider;
 
 use pocketmine\IPlayer;
 use pocketmine\lang\BaseLang;
+use pocketmine\utils\Config;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionAttachment;
