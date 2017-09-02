@@ -31,41 +31,37 @@ class ListUserPermissions extends PluginCommand {
 	 *
 	 * @return bool
 	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args) {
+	public function execute(CommandSender $sender, string $commandLabel, array $args) : bool {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
 		if(empty($args)) {
 			return false;
 		}
-		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
-		if($player instanceof Player) {
-			$permissions = [];
-			if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[1])) {
-				$world = $args[1];
-				if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
-					$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
-					return true;
-				}
-				foreach($this->getPlugin()->getPlayerProvider()->getAllPlayerPermissions($player, $world) as $permission) {
-					if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
-						$permissions[] = $permission;
-					}
-				}
-				sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
-			}else{
-				foreach($this->getPlugin()->getPlayerProvider()->getAllPlayerPermissions($player) as $permission) {
-					if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
-						$permissions[] = $permission;
-					}
-				}
-				sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
+		$player = $this->getPlugin()->getServer()->getOfflinePlayer($args[0])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[0]);
+		$permissions = [];
+		if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[1])) {
+			$world = $args[1];
+			if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+				$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+				return true;
 			}
-			foreach($permissions as $permission) {
-				$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("listuserpermissions.list", [$permission]));
+			foreach($this->getPlugin()->getPlayerProvider()->getAllPlayerPermissions($player, $world) as $permission) {
+				if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
+					$permissions[] = $permission;
+				}
 			}
-		} else {
-			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[0]]));
+			sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
+		}else{
+			foreach($this->getPlugin()->getPlayerProvider()->getAllPlayerPermissions($player) as $permission) {
+				if($this->getPlugin()->sortPermissionConfigStrings($permission)) {
+					$permissions[] = $permission;
+				}
+			}
+			sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
+		}
+		foreach($permissions as $permission) {
+			$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("listuserpermissions.list", [$permission]));
 		}
 		return true;
 	}
@@ -84,7 +80,7 @@ class ListUserPermissions extends PluginCommand {
 	 */
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
-		$players = [];
+		$players = [$player->getName()];
 		foreach($this->getPlugin()->getServer()->getOnlinePlayers() as $player) {
 			$players[] = $player->getName();
 		}

@@ -15,6 +15,12 @@ class YAMLProvider extends DataProvider {
 	public function __construct(ThePermissionManager $plugin) {
 		parent::__construct($plugin);
 		@mkdir($this->plugin->getDataFolder()."players");
+		@mkdir($this->plugin->getDataFolder()."players".DIRECTORY_SEPARATOR."j");
+		new Config($this->plugin->getDataFolder()."players".DIRECTORY_SEPARATOR."j".DIRECTORY_SEPARATOR."permissions.yml", Config::YAML, [
+			"group" => $this->plugin->getGroups()->getDefaultGroup(),
+			"permissions" => [],
+			"worlds" => []
+		]);
 	}
 
 	/**
@@ -27,9 +33,14 @@ class YAMLProvider extends DataProvider {
 			$config->set("group", $this->plugin->getGroups()->getDefaultGroup());
 			$config->save();
 		}
+		if(!$config->exists("permissions")) {
+			$config->set("permissions", []);
+			$config->save();
+		}
 		if($this->plugin->getConfig()->get("enable-multiworld-perms", false)) {
 			if(!$config->exists("worlds")) {
 				$config->set("worlds", []);
+				$config->save();
 			}
 		}
 	}
@@ -83,5 +94,17 @@ class YAMLProvider extends DataProvider {
 	 */
 	public function getGroup(IPlayer $player) : string {
 		return $this->getPlayerConfig($player)->get("group", $this->plugin->getGroups()->getDefaultGroup());
+	}
+
+	/**
+	 * @param IPlayer $player
+	 * @param string $group
+	 *
+	 * @return bool
+	 */
+	public function setGroup(IPlayer $player, string $group) : bool {
+		$config = $this->getPlayerConfig($player);
+		$config->set("group", $group);
+		return $config->save();
 	}
 }

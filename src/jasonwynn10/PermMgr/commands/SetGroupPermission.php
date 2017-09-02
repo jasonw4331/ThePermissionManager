@@ -33,7 +33,7 @@ class SetGroupPermission extends PluginCommand {
 	 *
 	 * @return bool
 	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args) {
+	public function execute(CommandSender $sender, string $commandLabel, array $args) : bool {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
@@ -51,7 +51,7 @@ class SetGroupPermission extends PluginCommand {
 					$permString = $args[1];
 					if($this->getPlugin()->sortPermissionConfigStrings($permString)) {
 						if($permString === "*") {
-							if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+							if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 								$world = $args[2];
 								if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 									$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
@@ -68,7 +68,7 @@ class SetGroupPermission extends PluginCommand {
 							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
 							return true;
 						}
-						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 							$world = $args[2];
 							if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 								$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
@@ -91,7 +91,7 @@ class SetGroupPermission extends PluginCommand {
 						return true;
 					}else{
 						if($permString === "*") {
-							if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+							if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 								$world = $args[2];
 								if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 									$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
@@ -108,7 +108,7 @@ class SetGroupPermission extends PluginCommand {
 							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
 							return true;
 						}
-						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 							$world = $args[2];
 							if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 								$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
@@ -142,7 +142,7 @@ class SetGroupPermission extends PluginCommand {
 			$permString = $args[1];
 			if($this->getPlugin()->sortPermissionConfigStrings($permString)) {
 				if($permString === "*") {
-					if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+					if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 						$world = $args[2];
 						if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 							$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
@@ -159,7 +159,7 @@ class SetGroupPermission extends PluginCommand {
 					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
 					return true;
 				}
-				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 					$world = $args[2];
 					if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 						$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
@@ -182,7 +182,7 @@ class SetGroupPermission extends PluginCommand {
 				return true;
 			}else{
 				if($permString === "*") {
-					if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+					if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 						$world = $args[2];
 						if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 							$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
@@ -199,7 +199,7 @@ class SetGroupPermission extends PluginCommand {
 					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.success", [$group]));
 					return true;
 				}
-				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 					$world = $args[2];
 					if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 						$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));

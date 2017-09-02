@@ -1,6 +1,38 @@
 <?php
 namespace jasonwynn10\PermMgr\event;
 
-class PermissionDetachEvent extends PlayerPermissionEvent {
+use jasonwynn10\PermMgr\ThePermissionManager;
+
+use pocketmine\event\plugin\PluginEvent;
+use pocketmine\Player;
+
+class PermissionDetachEvent extends PluginEvent {
 	public static $handlerList = null;
+	/** @var Player $player */
+	private $player;
+
+	/**
+	 * PermissionDetachEvent constructor.
+	 *
+	 * @param ThePermissionManager $plugin
+	 * @param Player $player
+	 */
+	public function __construct(ThePermissionManager $plugin, Player $player){
+		parent::__construct($plugin);
+		$this->player = $player;
+	}
+
+	/**
+	 * @return Player
+	 */
+	public function getPlayer() : Player {
+		return $this->player;
+	}
+
+	/**
+	 * @param Player $player
+	 */
+	public function setPlayer(Player $player) {
+		$this->player = $player;
+	}
 }

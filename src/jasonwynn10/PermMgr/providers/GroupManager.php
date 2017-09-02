@@ -62,7 +62,6 @@ class GroupManager {
 				}
 			}
 			$this->config->set($group, $data);
-			$this->sortGroupPermissions($group);
 		}
 		$this->config->save();
 	}
@@ -103,7 +102,7 @@ class GroupManager {
 	 */
 	public function getGroupPermissions(string $group, string $levelName = "") : array {
 		if(empty($levelName)) {
-			return $this->config->getNested("$group.premissions", []);
+			return $this->config->getNested("$group.permissions", []);
 		}else{
 			return $this->config->getNested("$group.worlds.$levelName", []);
 		}

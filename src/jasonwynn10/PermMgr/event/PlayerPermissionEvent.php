@@ -2,8 +2,9 @@
 namespace jasonwynn10\PermMgr\event;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
+
+use pocketmine\IPlayer;
 use pocketmine\permission\Permission;
-use pocketmine\Player;
 
 class PlayerPermissionEvent extends PermissionEvent {
 	protected $player;
@@ -11,27 +12,27 @@ class PlayerPermissionEvent extends PermissionEvent {
 	 * PlayerPermissionEvent constructor.
 	 *
 	 * @param ThePermissionManager $plugin
-	 * @param Player $player
+	 * @param IPlayer $player
 	 * @param Permission|null $permission
 	 * @param string $levelName
 	 * @param bool $isGroup
 	 */
-	public function __construct(ThePermissionManager $plugin, Player $player, Permission $permission = null, string $levelName = "", bool $isGroup = false){
+	public function __construct(ThePermissionManager $plugin, IPlayer $player, Permission $permission = null, string $levelName = "", bool $isGroup = false){
 		parent::__construct($plugin, $permission, $levelName, $isGroup);
 		$this->player = $player;
 	}
 
 	/**
-	 * @return Player
+	 * @return IPlayer
 	 */
-	public function getPlayer() : Player {
+	public function getPlayer() : IPlayer {
 		return $this->player;
 	}
 
 	/**
-	 * @param Player $player
+	 * @param IPlayer $player
 	 */
-	public function setPlayer(Player $player) {
+	public function setPlayer(IPlayer $player) {
 		$this->player = $player;
 	}
 }

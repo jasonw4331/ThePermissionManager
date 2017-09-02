@@ -32,51 +32,48 @@ class SetGroup extends PluginCommand {
 	 *
 	 * @return bool
 	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args) {
+	public function execute(CommandSender $sender, string $commandLabel, array $args) : bool {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
 		if(empty($args)) {
 			return false;
 		}
-		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
-		if($player instanceof Player) {
-			if(isset($args[1])) {
-				$group = $args[1];
-				if(!in_array($group, $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true)) and !$this->getPlugin()->isAlias($group)) {
-					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
-					return true;
-				}
-				if(in_array($group, $this->getPlugin()->getSuperAdmins())) {
-					if($sender instanceof ConsoleCommandSender) {
-						if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
-							$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
-							return true;
-						}else{
-							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgroup.success", [$player->getName(), $group]));
-							$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("setgroup.notify", [$group]));
-							return true;
-						}
-					}else{
+		$player = $this->getPlugin()->getServer()->getOfflinePlayer($args[0])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[0]);
+		if(isset($args[1])) {
+			$group = $args[1];
+			if(!in_array($group, $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true)) and !$this->getPlugin()->isAlias($group)) {
+				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
+				return true;
+			}
+			if(in_array($group, $this->getPlugin()->getSuperAdmins())) {
+				if($sender instanceof ConsoleCommandSender) {
+					if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
 						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
 						return true;
+					}else{
+						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgroup.success", [$player->getName(), $group]));
+						if($player->isOnline())
+							$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("setgroup.notify", [$group]));
+						return true;
 					}
-				}
-				if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
+				}else{
 					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
 					return true;
-				}else{
-					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgroup.success", [$player->getName(), $group]));
-					$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("setgroup.notify", [$group]));
-					return true;
 				}
+			}
+			if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
+				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+				return true;
 			}else{
-				return false;
+				$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgroup.success", [$player->getName(), $group]));
+				if($player->isOnline())
+					$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("setgroup.notify", [$group]));
+				return true;
 			}
 		}else{
-			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[0]]));
+			return false;
 		}
-		return true;
 	}
 
 	/**
@@ -93,7 +90,7 @@ class SetGroup extends PluginCommand {
 	 */
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
-		$players = [];
+		$players = [$player->getName()];
 		foreach($this->getPlugin()->getServer()->getOnlinePlayers() as $player) {
 			$players[] = $player->getName();
 		}

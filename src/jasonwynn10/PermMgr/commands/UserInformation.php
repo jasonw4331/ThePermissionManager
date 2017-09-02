@@ -5,6 +5,7 @@ use jasonwynn10\PermMgr\ThePermissionManager;
 
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
+use pocketmine\OfflinePlayer;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
@@ -31,28 +32,30 @@ class UserInformation extends PluginCommand {
 	 *
 	 * @return bool
 	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args) {
+	public function execute(CommandSender $sender, string $commandLabel, array $args) : bool {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
 		if(empty($args)) {
 			return false;
 		}
-		$player = $this->getPlugin()->getServer()->getPlayer($args[0]);
+		$player = $this->getPlugin()->getServer()->getOfflinePlayer($args[0])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[0]);
 		if($player instanceof Player) {
-			$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.header", [$player->getName()]));
+			/** @var Player $player */
+			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.header", [$player->getName()]));
 			$status = $this->getPlugin()->getLanguage()->translateString("userinformation.online");
-			$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.status", [$status]));
-			$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.ip", [$player->getAddress()]));
-			$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.uuid", [$player->getUniqueId()]));
-			$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.group", [$this->getPlugin()->getPlayerProvider()->getGroup($player)]));
+			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.status", [$status]));
+			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.ip", [$player->getAddress()]));
+			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.uuid", [$player->getUniqueId()]));
+			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.group", [$this->getPlugin()->getPlayerProvider()->getGroup($player)]));
 		} else {
-			$player = $this->getPlugin()->getServer()->getOfflinePlayer($args[0]);
+			/** @var OfflinePlayer $player */
+			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.header", [$player->getName()]));
 			$status = $this->getPlugin()->getLanguage()->translateString("userinformation.offline");
-			$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.status", [$status]));
-			$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.ip", [$player->getAddress()]));
-			$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.uuid", [$player->getUniqueId()]));
-			$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.group", [$this->getPlugin()->getPlayerProvider()->getGroup($player)]));
+			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.status", [$status]));
+			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.ip", ["unknown"]));
+			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.uuid", ["unknown"]));
+			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("userinformation.group", [$this->getPlugin()->getPlayerProvider()->getGroup($player)]));
 		}
 		return true;
 	}
@@ -71,7 +74,7 @@ class UserInformation extends PluginCommand {
 	 */
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
-		$players = [];
+		$players = [$player->getName()];
 		foreach($this->getPlugin()->getServer()->getOnlinePlayers() as $player) {
 			$players[] = $player->getName();
 		}

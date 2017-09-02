@@ -28,6 +28,7 @@ use jasonwynn10\PermMgr\providers\MySQLProvider;
 use jasonwynn10\PermMgr\providers\PurePermsProvider;
 use jasonwynn10\PermMgr\providers\YAMLProvider;
 
+use pocketmine\IPlayer;
 use pocketmine\lang\BaseLang;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
@@ -121,7 +122,7 @@ class ThePermissionManager extends PluginBase {
 		return $this->groupProvider;
 	}
 
-	public function getPlayerProvider() {
+	public function getPlayerProvider() : DataProvider {
 		return $this->playerProvider;
 	}
 
@@ -141,7 +142,7 @@ class ThePermissionManager extends PluginBase {
 		$this->perms[$ev->getplayer()->getId()] = $attachment;
 		$this->playerProvider->init($ev->getplayer());
 		if(!$this->getConfig()->get("enable-multiworld-perms", false)) {
-			$groupPerms = $this->getGroups()->getAllGroupPermissions($this->getPlayerProvider()->getGroup($ev->getplayer()));
+			$groupPerms = $this->getGroups()->getAllGroupPermissions($this->playerProvider->getGroup($ev->getplayer()));
 			foreach($groupPerms as $permission) {
 				if($this->sortPermissionConfigStrings($permission)) {
 					$this->addPlayerPermission($ev->getplayer(), new Permission($permission), true);
@@ -159,7 +160,7 @@ class ThePermissionManager extends PluginBase {
 				}
 			}
 		}else{
-			$groupPerms = $this->getGroups()->getAllGroupPermissions($this->getPlayerProvider()->getGroup($ev->getplayer()), $player->getLevel()->getName());
+			$groupPerms = $this->getGroups()->getAllGroupPermissions($this->playerProvider->getGroup($ev->getplayer()), $player->getLevel()->getName());
 			foreach($groupPerms as $permission) {
 				if($this->sortPermissionConfigStrings($permission)) {
 					$this->addPlayerPermission($ev->getplayer(), new Permission($permission), true, $player->getLevel()->getName());
@@ -193,67 +194,66 @@ class ThePermissionManager extends PluginBase {
 	}
 
 	/**
-	 * @param Player $player
+	 * @param Player|IPlayer $player
 	 *
 	 * @return bool
 	 */
-	public function isAttached(Player $player) : bool {
+	public function isAttached(IPlayer $player) : bool {
+		if(!$player->isOnline())
+			return false;
 		return isset($this->perms[$player->getId()]);
 	}
 
 	/**
-	 * @param Player $player
+	 * @param IPlayer $player
 	 * @param Permission $permission
 	 * @param bool $group
 	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function addPlayerPermission(Player $player, Permission $permission, bool $group = false, string $levelName = "") : bool {
+	public function addPlayerPermission(IPlayer $player, Permission $permission, bool $group = false, string $levelName = "") : bool {
 		$ev = new PlayerPermissionAddEvent($this, $player, $permission, $group, $levelName);
 		if(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true) !== true) {
 			$ev->setCancelled();
 		}
 		$this->getServer()->getPluginManager()->callEvent($ev);
-		if(!$this->isAttached($ev->getPlayer())) {
-			return false;
-		}
-		if($ev->isCancelled()) {
-			return false;
-		}
-
-		$attachment = $this->perms[$ev->getPlayer()->getId()];
-		$attachment->setPermission($ev->getPermission(), true);
-
 		if(!$ev->isGroup()) {
 			$this->playerProvider->setPlayerPermissions($ev->getPlayer(), [$permission->getName()], $ev->getLevelName());
 			$this->playerProvider->sortPlayerPermissions($ev->getPlayer());
+		}
+		if($ev->getPlayer()->isOnline()) {
+			if($ev->isCancelled() or !$this->isAttached($ev->getPlayer())) {
+				return false;
+			}
+			/** @noinspection PhpUndefinedMethodInspection */
+			$attachment = $this->perms[$ev->getPlayer()->getId()];
+			$attachment->setPermission($ev->getPermission(), true);
 		}
 		return true;
 	}
 
 	/**
-	 * @param Player $player
+	 * @param IPlayer $player
 	 * @param Permission $permission
 	 * @param bool $group
 	 * @param string $levelName
 	 *
 	 * @return bool
 	 */
-	public function removePlayerPermission(Player $player, Permission $permission, bool $group = false, string $levelName = "") : bool {
+	public function removePlayerPermission(IPlayer $player, Permission $permission, bool $group = false, string $levelName = "") : bool {
 		$this->getServer()->getPluginManager()->callEvent($ev = new PlayerPermissionRemoveEvent($this, $player, $permission, $group, $levelName));
-		if(!$this->isAttached($ev->getPlayer())) {
-			return false;
-		}
-		if($ev->isCancelled() and !(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true))) {
-			return false;
-		}
-
-		$attachment = $this->perms[$ev->getPlayer()->getId()];
-		$attachment->setPermission($ev->getPermission(), false);
-
 		if(!$ev->isGroup()) {
-			$this->getPlayerProvider()->removePlayerPermissions($ev->getPlayer(), [$permission->getName()], $ev->getLevelName());
+			$this->playerProvider->removePlayerPermissions($ev->getPlayer(), [$permission->getName()], $ev->getLevelName());
+			$this->playerProvider->sortPlayerPermissions($ev->getPlayer());
+		}
+		if($ev->getPlayer()->isOnline()) {
+			if(!$this->isAttached($ev->getPlayer()) or ($ev->isCancelled() and !(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true)))) {
+				return false;
+			}
+			/** @noinspection PhpUndefinedMethodInspection */
+			$attachment = $this->perms[$ev->getPlayer()->getId()];
+			$attachment->setPermission($ev->getPermission(), false);
 		}
 		return true;
 	}
@@ -302,14 +302,14 @@ class ThePermissionManager extends PluginBase {
 	}
 
 	/**
-	 * @param Player[] $players
+	 * @param IPlayer[] $players
 	 *
 	 * @return bool
 	 */
 	public function reloadPlayerPermissions(array $players = []) : bool {
 		$players = !empty($players) ? $players : $this->getServer()->getOnlinePlayers();
 		foreach($players as $player) {
-			if(!$this->isAttached($player)) {
+			if(!$player->isOnline() or !$this->isAttached($player)) {
 				continue;
 			}
 			$player->removeAttachment($this->perms[$player->getId()]);
@@ -317,14 +317,14 @@ class ThePermissionManager extends PluginBase {
 			$attachment = $player->addAttachment($this);
 			$this->perms[$player->getId()] = $attachment;
 
-			foreach($this->getPlayerProvider()->getPlayerPermissions($player) as $permission) {
+			foreach($this->playerProvider->getPlayerPermissions($player) as $permission) {
 				if($this->sortPermissionConfigStrings($permission)) {
 					$this->addPlayerPermission($player, new Permission($permission), false);
 				}else{
 					$this->removePlayerPermission($player, new Permission($permission), false);
 				}
 			}
-			foreach($this->getPlayerProvider()->getAllPlayerPermissions($player) as $permission) {
+			foreach($this->playerProvider->getAllPlayerPermissions($player) as $permission) {
 				if($this->sortPermissionConfigStrings($permission)) {
 					$this->addPlayerPermission($player, new Permission($permission), true);
 				}else{
@@ -368,19 +368,18 @@ class ThePermissionManager extends PluginBase {
 	}
 
 	/**
-	 * @param Player $player
+	 * @param IPlayer $player
 	 * @param string $group
 	 *
 	 * @return bool
 	 */
-	public function setPlayerGroup(Player $player, string $group) : bool {
-		$config = $this->getPlayerProvider()->getPlayerConfig($player);
-		$this->getServer()->getPluginManager()->callEvent($ev = new GroupChangeEvent($this, $player, $config->get("group"), $group));
+	public function setPlayerGroup(IPlayer $player, string $group) : bool {
+		$this->getServer()->getPluginManager()->callEvent($ev = new GroupChangeEvent($this, $player, $this->playerProvider->getGroup($player), $group));
 		if($ev->isCancelled())
 			return false;
-		$config->set("group", $ev->getNewGroup());
+		$return = $this->playerProvider->setGroup($ev->getPlayer(), $ev->getNewGroup());
 		$this->reloadPlayerPermissions([$ev->getPlayer()]);
-		return $config->save();
+		return $return;
 	}
 
 	/**

@@ -31,7 +31,7 @@ class ListGroupPermissions extends PluginCommand {
 	 *
 	 * @return bool
 	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args) {
+	public function execute(CommandSender $sender, string $commandLabel, array $args) : bool {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
@@ -44,7 +44,7 @@ class ListGroupPermissions extends PluginCommand {
 			return true;
 		}
 		$permissions = [];
-		if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[1])) {
+		if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[1])) {
 			$world = $args[1];
 			if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 				$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));

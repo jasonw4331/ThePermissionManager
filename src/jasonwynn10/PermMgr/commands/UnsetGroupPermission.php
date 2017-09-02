@@ -18,11 +18,11 @@ class UnsetGroupPermission extends PluginCommand {
 	 * @param ThePermissionManager $plugin
 	 */
 	public function __construct(ThePermissionManager $plugin){
-		parent::__construct($plugin->getLanguage()->get("ununsetgrouppermission.name"), $plugin);
-		$this->setPermission("PermManager.command.ununsetgrouppermission");
-		$this->setUsage($plugin->getLanguage()->get("ununsetgrouppermission.usage"));
-		$this->setAliases([$plugin->getLanguage()->get("ununsetgrouppermission.alias")]);
-		$this->setDescription($plugin->getLanguage()->get("ununsetgrouppermission.desc"));
+		parent::__construct($plugin->getLanguage()->get("unsetgrouppermission.name"), $plugin);
+		$this->setPermission("PermManager.command.unsetgrouppermission");
+		$this->setUsage($plugin->getLanguage()->get("unsetgrouppermission.usage"));
+		$this->setAliases([$plugin->getLanguage()->get("unsetgrouppermission.alias")]);
+		$this->setDescription($plugin->getLanguage()->get("unsetgrouppermission.desc"));
 		$this->setPermissionMessage($plugin->getLanguage()->get("nopermission"));
 	}
 
@@ -33,7 +33,7 @@ class UnsetGroupPermission extends PluginCommand {
 	 *
 	 * @return bool
 	 */
-	public function execute(CommandSender $sender, string $commandLabel, array $args) {
+	public function execute(CommandSender $sender, string $commandLabel, array $args) : bool {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
@@ -51,7 +51,7 @@ class UnsetGroupPermission extends PluginCommand {
 					$permString = $args[1];
 					$permString = str_replace("-","", $permString);
 					if($permString === "*") {
-						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 							$world = $args[2];
 							if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 								$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
@@ -68,7 +68,7 @@ class UnsetGroupPermission extends PluginCommand {
 						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetgrouppermission.success", [$group]));
 						return true;
 					}else{
-						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 							$world = $args[2];
 							if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 								$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
@@ -102,7 +102,7 @@ class UnsetGroupPermission extends PluginCommand {
 			$permString = $args[1];
 			$permString = str_replace("-","", $permString);
 			if($permString === "*") {
-				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 					$world = $args[2];
 					if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 						$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
@@ -119,7 +119,7 @@ class UnsetGroupPermission extends PluginCommand {
 				$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("unsetgrouppermission.success", [$group]));
 				return true;
 			}else{
-				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", true) and isset($args[2])) {
+				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 					$world = $args[2];
 					if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
 						$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));

@@ -17,6 +17,7 @@ class MySQLProvider extends DataProvider {
 	 */
 	public function __construct(ThePermissionManager $plugin) {
 		parent::__construct($plugin);
+
 		$this->db = new \mysqli(
 			$plugin->getConfig()->getNested("mysql-settings.host"),
 			$plugin->getConfig()->getNested("mysql-settings.user", "root"),
@@ -67,6 +68,23 @@ class MySQLProvider extends DataProvider {
 
 	/**
 	 * @param IPlayer $player
+	 * @param string $group
+	 *
+	 * @return bool
+	 */
+	public function setGroup(IPlayer $player, string $group) : bool {
+		$result = $this->db->query("INSERT INTO players(group) WHERE username='{$this->db->real_escape_string($player->getName())}' ON DUPLICATE KEY UPDATE group = VALUES(group);");
+		if($result instanceof \mysqli_result) {
+			// TODO
+			return true;
+		}else{
+			// TODO
+			return false;
+		}
+	}
+
+	/**
+	 * @param IPlayer $player
 	 * @param string $levelName
 	 *
 	 * @return array
@@ -91,7 +109,7 @@ class MySQLProvider extends DataProvider {
 	 */
 	public function setPlayerPermissions(IPlayer $player, array $permissions, string $levelName = "") : bool {
 		$permissions = implode(", ", $permissions);
-		$result = $this->db->query("INSERT INTO players(userName, group, permissions) VALUES ('" . $this->db->escape_string($player->getName()) . "', '" . $this->db->escape_string($player->getName()) . "', '" . $this->db->escape_string($permissions) . "') ON DUPLICATE KEY UPDATE group = VALUES(group), permissions = VALUES(permissions);");
+		$result = $this->db->query("INSERT INTO players(username, group, permissions) VALUES ('" . $this->db->escape_string($player->getName()) . "', '" . $this->db->escape_string($this->getGroup($player)) . "', '" . $this->db->escape_string($permissions) . "') ON DUPLICATE KEY UPDATE group = VALUES(group), permissions = VALUES(permissions);");
 		if($result instanceof \mysqli_result) {
 			// TODO
 			return true;

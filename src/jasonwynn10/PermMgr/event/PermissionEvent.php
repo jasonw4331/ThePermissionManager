@@ -47,7 +47,7 @@ class PermissionEvent extends PluginEvent {
 	}
 
 	public function getLevelName() : string {
-		$this->levelName;
+		return $this->levelName;
 	}
 
 	public function setLevelName(string $levelName) {

@@ -2,6 +2,7 @@
 namespace jasonwynn10\PermMgr\event;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
+
 use pocketmine\permission\Permission;
 
 class GroupPermissionEvent extends PermissionEvent {

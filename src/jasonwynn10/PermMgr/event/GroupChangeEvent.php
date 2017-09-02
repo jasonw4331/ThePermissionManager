@@ -1,11 +1,12 @@
 <?php
 namespace jasonwynn10\PermMgr\event;
 
+use pocketmine\event\Cancellable;
 use pocketmine\event\plugin\PluginEvent;
-use pocketmine\Player;
+use pocketmine\IPlayer;
 use pocketmine\plugin\Plugin;
 
-class GroupChangeEvent extends PluginEvent {
+class GroupChangeEvent extends PluginEvent implements Cancellable {
 	public static $handlerList = null;
 
 	/** @var string $oldGroup */
@@ -14,40 +15,56 @@ class GroupChangeEvent extends PluginEvent {
 	/** @var string $newGroup */
 	protected $newGroup;
 
-	/** @var Player $player */
+	/** @var IPlayer $player */
 	protected $player;
+
 	/**
 	 * GroupChangeEvent constructor.
 	 *
 	 * @param Plugin $plugin
-	 * @param Player $player
+	 * @param IPlayer $player
 	 * @param string $oldGroup
 	 * @param string $newGroup
 	 */
-	public function __construct(Plugin $plugin, Player $player, string $oldGroup, string $newGroup) {
+	public function __construct(Plugin $plugin, IPlayer $player, string $oldGroup, string $newGroup) {
 		parent::__construct($plugin);
 		$this->oldGroup = $oldGroup;
 		$this->newGroup = $newGroup;
 		$this->player = $player;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getNewGroup() : string {
 		return $this->newGroup;
 	}
 
+	/**
+	 * @param string $group
+	 */
 	public function setNewGroup(string $group) {
 		$this->newGroup = $group;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getOldGroup() : string {
 		return $this->oldGroup;
 	}
 
-	public function getPlayer() : Player {
+	/**
+	 * @return IPlayer
+	 */
+	public function getPlayer() : IPlayer {
 		return $this->player;
 	}
 
-	public function setPlayer(Player $player) {
+	/**
+	 * @param IPlayer $player
+	 */
+	public function setPlayer(IPlayer $player) {
 		$this->player = $player;
 	}
 }

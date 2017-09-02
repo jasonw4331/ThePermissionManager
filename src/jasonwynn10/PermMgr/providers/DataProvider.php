@@ -115,4 +115,12 @@ abstract class DataProvider {
 	 * @return string
 	 */
 	abstract function getGroup(IPlayer $player) : string;
+
+	/**
+	 * @param IPlayer $player
+	 * @param string $group
+	 *
+	 * @return bool
+	 */
+	abstract function setGroup(IPlayer $player, string $group) : bool;
 }

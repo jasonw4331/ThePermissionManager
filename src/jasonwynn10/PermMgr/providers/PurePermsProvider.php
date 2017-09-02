@@ -1,10 +1,29 @@
 <?php
 namespace jasonwynn10\PermMgr\providers;
 
+use jasonwynn10\PermMgr\ThePermissionManager;
+
 use pocketmine\IPlayer;
 use pocketmine\utils\Config;
 
 class PurePermsProvider extends DataProvider {
+	/**
+	 * PurePermsProvider constructor.
+	 *
+	 * @param ThePermissionManager $plugin
+	 */
+	public function __construct(ThePermissionManager $plugin){
+		parent::__construct($plugin);
+		new Config($this->plugin->getDataFolder() . "players.yml", Config::YAML, [
+			"jasonwynn10" => [
+				"group" => $this->plugin->getGroups()->getDefaultGroup(),
+				"permissions" => [],
+				"worlds" => [],
+				"time" => -1
+			]
+		]);
+	}
+
 	/**
 	 * @param IPlayer $player
 	 */
@@ -69,5 +88,17 @@ class PurePermsProvider extends DataProvider {
 	 */
 	public function getGroup(IPlayer $player) : string {
 		return $this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".group", $this->plugin->getGroups()->getDefaultGroup());
+	}
+
+	/**
+	 * @param IPlayer $player
+	 * @param string $group
+	 *
+	 * @return bool
+	 */
+	public function setGroup(IPlayer $player, string $group) : bool{
+		$config = $this->getPlayerConfig($player);
+		$config->setNested(strtolower($player->getName()).".group", $group);
+		return $config->save();
 	}
 }
