@@ -36,31 +36,19 @@ class SetGroup extends PluginCommand {
 		if(!$this->testPermission($sender)) {
 			return true;
 		}
-		if(empty($args)) {
+		if(empty($args) or count($args) < 2) {
 			return false;
 		}
-		$player = $this->getPlugin()->getServer()->getOfflinePlayer($args[0])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[0]);
-		if(isset($args[1])) {
-			$group = $args[1];
+		if($sender instanceof Player) {
+			$player = $this->getPlugin()->getServer()->getOfflinePlayer($args[1])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[1]);
+			$group = $args[0];
 			if(!in_array($group, $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true)) and !$this->getPlugin()->isAlias($group)) {
 				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
 				return true;
 			}
 			if(in_array($group, $this->getPlugin()->getSuperAdmins())) {
-				if($sender instanceof ConsoleCommandSender) {
-					if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
-						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
-						return true;
-					}else{
-						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgroup.success", [$player->getName(), $group]));
-						if($player->isOnline())
-							$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("setgroup.notify", [$group]));
-						return true;
-					}
-				}else{
-					$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
-					return true;
-				}
+				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("setgroup.superadmin"));
+				return true;
 			}
 			if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
 				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
@@ -72,7 +60,21 @@ class SetGroup extends PluginCommand {
 				return true;
 			}
 		}else{
-			return false;
+			$player = $this->getPlugin()->getServer()->getOfflinePlayer($args[0])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[0]);
+			$group = $args[1];
+			if(!in_array($group, $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true)) and !$this->getPlugin()->isAlias($group)) {
+				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
+				return true;
+			}
+			if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
+				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+				return true;
+			}else{
+				$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setgroup.success", [$player->getName(), $group]));
+				if($player->isOnline())
+					$player->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("setgroup.notify", [$group]));
+				return true;
+			}
 		}
 	}
 
