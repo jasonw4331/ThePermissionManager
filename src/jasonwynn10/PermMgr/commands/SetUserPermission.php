@@ -41,84 +41,79 @@ class SetUserPermission extends PluginCommand {
 		}
 		var_dump($args); //TODO remove
 		if($sender instanceof Player) {
-			$player = $this->getPlugin()->getServer()->getPlayer($args[1]);
-			if($player instanceof Player) {
-				$permString = $args[1];
-				if($this->getPlugin()->sortPermissionConfigStrings($permString)) {
-					if($permString === "*") {
-						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
-							$world = $args[2];
-							if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
-								$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
-								return true;
-							}
-							foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-								$this->getPlugin()->addPlayerPermission($player, $permission, false, $world);
-							}
-						}else{
-							foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-								$this->getPlugin()->addPlayerPermission($player, $permission, false);
-							}
-						}
-						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
-						return true;
-					}
+			$player = $this->getPlugin()->getServer()->getOfflinePlayer($args[1])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[1]);
+			$permString = $args[1];
+			if($this->getPlugin()->sortPermissionConfigStrings($permString)) {
+				if($permString === "*") {
 					if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
 						$world = $args[2];
-						$permission = new Permission($permString);
-						if(!$this->getPlugin()->addPlayerPermission($player, $permission, false, $world)) {
-							$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
-						}else{
-							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
+						if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+							$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+							return true;
+						}
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->addPlayerPermission($player, $permission, false, $world);
 						}
 					}else{
-						$permission = new Permission($permString);
-						if(!$this->getPlugin()->addPlayerPermission($player, $permission, false)) {
-							$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
-						}else{
-							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->addPlayerPermission($player, $permission, false);
 						}
 					}
-					return true;
-				}else{
-					if($permString === "*") {
-						if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
-							$world = $args[2];
-							if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
-								$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
-								return true;
-							}
-							foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-								$this->getPlugin()->removePlayerPermission($player, $permission, false, $world);
-							}
-						}else{
-							foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-								$this->getPlugin()->removePlayerPermission($player, $permission, false);
-							}
-						}
-						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
-						return true;
-					}
-					if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
-						$world = $args[2];
-						$permission = new Permission($permString);
-						if(!$this->getPlugin()->removePlayerPermission($player, $permission, false, $world)) {
-							$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
-						}else{
-							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
-						}
-					}else{
-						$permission = new Permission($permString);
-						if(!$this->getPlugin()->removePlayerPermission($player, $permission, false)) {
-							$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
-						}else{
-							$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
-						}
-					}
+					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
 					return true;
 				}
-			} else {
-				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("playeroffline", [$args[1]]));
+				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
+					$world = $args[2];
+					$permission = new Permission($permString);
+					if(!$this->getPlugin()->addPlayerPermission($player, $permission, false, $world)) {
+						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+					}else{
+						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
+					}
+				}else{
+					$permission = new Permission($permString);
+					if(!$this->getPlugin()->addPlayerPermission($player, $permission, false)) {
+						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+					}else{
+						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
+					}
+				}
+				return true;
+			}else{
+				if($permString === "*") {
+					if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
+						$world = $args[2];
+						if($this->getPlugin()->getServer()->isLevelGenerated($world)) {
+							$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("invalidworld", [$world]));
+							return true;
+						}
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->removePlayerPermission($player, $permission, false, $world);
+						}
+					}else{
+						foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
+							$this->getPlugin()->removePlayerPermission($player, $permission, false);
+						}
+					}
+					$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
+					return true;
+				}
+				if($this->getPlugin()->getConfig()->get("enable-multiworld-perms", false) and isset($args[2])) {
+					$world = $args[2];
+					$permission = new Permission($permString);
+					if(!$this->getPlugin()->removePlayerPermission($player, $permission, false, $world)) {
+						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+					}else{
+						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
+					}
+				}else{
+					$permission = new Permission($permString);
+					if(!$this->getPlugin()->removePlayerPermission($player, $permission, false)) {
+						$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+					}else{
+						$sender->sendMessage(TextFormat::GREEN.$this->getPlugin()->getLanguage()->translateString("setuserpermission.success", [$player->getName()]));
+					}
+				}
 				return true;
 			}
 		}else{

@@ -134,7 +134,7 @@ class SetGroupPermission extends PluginCommand {
 					return false;
 				}
 			}else{
-				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
+				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("setgrouppermission.superadmin"));
 				return true;
 			}
 		}
@@ -275,6 +275,7 @@ class SetGroupPermission extends PluginCommand {
 			]
 		];
 		$commandData["permission"] = $this->getPermission();
+		$commandData["aliases"] = [$this->getPlugin()->getLanguage()->get("setgrouppermission.alias")];
 		return $commandData;
 	}
 }
