@@ -161,7 +161,6 @@ class UnsetGroupPermission extends PluginCommand {
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
 		$groups = $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true);
-		sort($groups, SORT_FLAG_CASE);
 		$permissions = [];
 		$groupPerms = $this->getPlugin()->getGroups()->getAllGroupPermissions($this->getPlugin()->getPlayerProvider()->getGroup($player));
 		foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {

@@ -85,7 +85,6 @@ class ListGroupPermissions extends PluginCommand {
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
 		$groups = $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true);
-		sort($groups, SORT_FLAG_CASE);
 		$worlds = [];
 		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
 			$worlds[] = $level->getName();

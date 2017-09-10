@@ -65,7 +65,6 @@ class DefaultGroup extends PluginCommand {
 	public function generateCustomCommandData(Player $player) : array {
 		$commandData = parent::generateCustomCommandData($player);
 		$groups = $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true);
-		sort($groups, SORT_FLAG_CASE);
 		$commandData["overloads"]["default"]["input"]["parameters"] = [
 			[
 				"name" => "group",
