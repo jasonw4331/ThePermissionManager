@@ -8,7 +8,6 @@ use pocketmine\command\PluginCommand;
 use pocketmine\permission\Permission;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
-use pocketmine\plugin\PluginBase;
 use pocketmine\utils\TextFormat;
 
 class PluginPermissions extends PluginCommand {
@@ -40,13 +39,17 @@ class PluginPermissions extends PluginCommand {
 		if(empty($args)) {
 			return false;
 		}
-		$plugin = (strtolower($args[0]) === 'pocketmine' or strtolower($args[0]) === 'pmmp') ? 'pocketmine' : $this->getPlugin()->getServer()->getPluginManager()->getPlugin($args[0]);
+		$source = (strtolower($args[0]) === 'pocketmine' or strtolower($args[0]) === 'pmmp') ? 'pocketmine' : $this->getPlugin()->getServer()->getPluginManager()->getPlugin($args[0]);
 		/** @var Permission[] $permissionObjects */
-		$permissionObjects = ($plugin instanceof PluginBase) ? $plugin->getDescription()->getPermissions() : $this->getPlugin()->getPocketMinePermissions();
+		$permissionObjects = ($source !== "pocketmine" and $source instanceof Plugin) ? $source->getDescription()->getPermissions() : $this->getPlugin()->getPocketMinePermissions();
 		/** @var string[] $permissions */
 		$permissions = [];
 		foreach($permissionObjects as $permission) {
 			$permissions[] = $permission->getName();
+		}
+		if(empty($permissions)) {
+			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("error")); //TODO: make translation string for invalid plugin
+			return true;
 		}
 		sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
 		foreach($permissions as $permission) {
