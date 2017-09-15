@@ -82,6 +82,30 @@ class GroupManager {
 	}
 
 	/**
+	 * @param string[] ...$groups
+	 *
+	 * @return string
+	 */
+	public function getHighest(string ...$groups) : string {
+		$arr = array_map(function($group1, $group2) {
+			foreach($this->getGroupsConfig()->getNested($group1.".inheritance", []) as $parent) {
+				if() { //TODO is group 1 higher than group 2 in the hierarchy
+					return 1;
+				}
+				continue;
+			}
+			foreach($this->getGroupsConfig()->getNested($group2.".inheritance", []) as $parent) {
+				if() { //TODO is group 2 higher than group 1 in the hierarchy
+					return -1;
+				}
+				continue;
+			}
+			return 0; // They are not in the same hierarchy don't do anything
+		}, $groups);
+		return $arr[0];
+	}
+
+	/**
 	 * @param string $group
 	 *
 	 * @return bool

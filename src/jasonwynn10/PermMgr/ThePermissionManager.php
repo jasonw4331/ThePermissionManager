@@ -6,6 +6,7 @@ use jasonwynn10\PermMgr\commands\GroupInformation;
 use jasonwynn10\PermMgr\commands\Groups;
 use jasonwynn10\PermMgr\commands\ListGroupPermissions;
 use jasonwynn10\PermMgr\commands\ListUserPermissions;
+use jasonwynn10\PermMgr\commands\MergeUsers;
 use jasonwynn10\PermMgr\commands\PluginPermissions;
 use jasonwynn10\PermMgr\commands\ReloadPermissions;
 use jasonwynn10\PermMgr\commands\SetGroup;
@@ -78,15 +79,11 @@ class ThePermissionManager extends PluginBase {
 			}
 		}
 		$this->superAdmins = $this->getConfig()->get("superadmin-groups", []);
-	}
-
-	public function onEnable() {
-		new EventListener($this);
-
 		$this->getServer()->getCommandMap()->registerAll(self::class, [
 			new SetUserPermission($this),
 			new UnsetUserPermission($this),
 			new ListUserPermissions($this),
+			//new MergeUsers($this),
 			new SetGroupPermission($this),
 			new UnsetGroupPermission($this),
 			new ListGroupPermissions($this),
@@ -98,6 +95,11 @@ class ThePermissionManager extends PluginBase {
 			new GroupInformation($this),
 			new DefaultGroup($this)
 		]);
+	}
+
+	public function onEnable() {
+		new EventListener($this);
+
 		SpoonDetector::printSpoon($this,"spoon.txt");
 		//TODO find and disable other permission managers
 		/** @var \_64FF00\PurePerms\PurePerms|null $pureperms */

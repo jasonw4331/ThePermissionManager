@@ -123,4 +123,23 @@ abstract class DataProvider {
 	 * @return bool
 	 */
 	abstract function setGroup(IPlayer $player, string $group) : bool;
+
+	/**
+	 * @param IPlayer $from
+	 * @param IPlayer $to
+	 *
+	 * @return bool
+	 */
+	public function mergePermissions(IPlayer $from, IPlayer $to) : bool {
+		foreach($this->plugin->getServer()->getLevels() as $level) {
+			$fromPerms = $this->getPlayerPermissions($from, $level->getName());
+			$toPerms = $this->getPlayerPermissions($from, $level->getName());
+			$perms = array_unique(array_merge($fromPerms, $toPerms));
+			$this->setPlayerPermissions($to, $perms, $level->getName());
+		}
+		$fromPerms = $this->getPlayerPermissions($from);
+		$toPerms = $this->getPlayerPermissions($from);
+		$perms = array_unique(array_merge($fromPerms, $toPerms));
+		return $this->setPlayerPermissions($to, $perms);
+	}
 }

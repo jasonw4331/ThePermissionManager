@@ -1,9 +1,10 @@
 name: ThePermissionManager
 main: jasonwynn10\PermMgr\ThePermissionManager
-version: 0.2.9
+version: 0.2.10
 api:
  - 3.0.0
  - 3.0.0-ALPHA7
+ - 3.0.0-ALPHA8
 author: "jasonwynn10"
 description: "A modern PocketMine Permission Manager for PMMP servers"
 prefix: "TPM"
@@ -43,4 +44,6 @@ permissions:
           PermManager.command.groupinformation:
             default: true
           PermManager.command.defaultgroup:
+            default: op
+          PermManager.command.mergeusers:
             default: op
