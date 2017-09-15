@@ -107,4 +107,27 @@ class YAMLProvider extends DataProvider {
 		$config->set("group", $group);
 		return $config->save();
 	}
+
+	/**
+	 * @return array
+	 */
+	public function getPlayerGroups() : array{
+		$return = [];
+		foreach(new \RegexIterator(new \DirectoryIterator($this->plugin->getDataFolder()), "/\\.yml$/i") as $file){
+			if($file === "." or $file === "..") {
+				continue;
+			}
+			//TODO: figure out wth im doing
+			$file = $this->plugin->getDataFolder() . $file;
+			$data = yaml_parse_file($file);
+			var_dump($file); //TODO: remove
+			var_dump($data); //TODO: remove
+			foreach ($this->plugin->getGroups()->getGroupsConfig()->getAll(true) as $group) {
+				if(strcasecmp($group, $data["group"]) === 0) {
+					$return[$group][] = $file;
+				}
+			}
+		}
+		return $return;
+	}
 }

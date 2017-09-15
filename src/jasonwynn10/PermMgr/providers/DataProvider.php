@@ -46,6 +46,11 @@ abstract class DataProvider {
 	}
 
 	/**
+	 * @return array
+	 */
+	abstract function getPlayerGroups() : array;
+
+	/**
 	 * @param IPlayer $player
 	 * @param string[] $permissions
 	 * @param string $levelName
