@@ -87,22 +87,35 @@ class GroupManager {
 	 * @return string
 	 */
 	public function getHighest(string ...$groups) : string {
+		$this->config->reload();
 		$arr = array_map(function($group1, $group2) {
-			foreach($this->getGroupsConfig()->getNested($group1.".inheritance", []) as $parent) {
-				if() { //TODO is group 1 higher than group 2 in the hierarchy
-					return 1;
-				}
-				continue;
+			$parents = $this->getRecursiveInheritance($group2);
+			if(in_array($group1, $parents)) {
+				return 1;
 			}
-			foreach($this->getGroupsConfig()->getNested($group2.".inheritance", []) as $parent) {
-				if() { //TODO is group 2 higher than group 1 in the hierarchy
-					return -1;
-				}
-				continue;
+			$parents = $this->getRecursiveInheritance($group1);
+			if(in_array($group2, $parents)) {
+				return -1;
 			}
 			return 0; // They are not in the same hierarchy don't do anything
 		}, $groups);
 		return $arr[0];
+	}
+
+	/**
+	 * @param string $group
+	 *
+	 * @return array
+	 */
+	private function getRecursiveInheritance(string $group) : array {
+		$groups = [];
+		foreach($this->config->getNested("$group.inheritance", []) as $parentGroup) {
+			$this->isAlias($parentGroup); //fixes alias to be real name
+			foreach($this->getRecursiveInheritance($parentGroup) as $group) {
+				$groups[] = $group;
+			}
+		}
+		return array_unique($groups);
 	}
 
 	/**

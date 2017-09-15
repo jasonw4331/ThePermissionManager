@@ -83,7 +83,7 @@ class ThePermissionManager extends PluginBase {
 			new SetUserPermission($this),
 			new UnsetUserPermission($this),
 			new ListUserPermissions($this),
-			//new MergeUsers($this),
+			new MergeUsers($this),
 			new SetGroupPermission($this),
 			new UnsetGroupPermission($this),
 			new ListGroupPermissions($this),

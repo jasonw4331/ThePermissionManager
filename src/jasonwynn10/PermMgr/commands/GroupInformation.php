@@ -53,6 +53,8 @@ class GroupInformation extends PluginCommand {
 		}
 		$parents = implode(", ", $config->getNested($group.".inheritance", []));
 		$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("groupinformation.parents", [$parents]));
+		$userCount = $this->getPlugin()->getPlayerProvider()->getPlayerGroups();
+		$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("groupinformation.users", [count($userCount[$group])]));
 		return true;
 	}
 
