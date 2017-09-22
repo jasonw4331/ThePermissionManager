@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\providers;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
@@ -24,7 +25,7 @@ abstract class DataProvider {
 	 *
 	 * @return void
 	 */
-	abstract function init(IPlayer $player);
+	abstract function init(IPlayer $player) : void;
 
 	/**
 	 * @param IPlayer $player

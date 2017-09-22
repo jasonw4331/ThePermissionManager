@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\commands;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
@@ -38,7 +39,7 @@ class MergeUsers extends PluginCommand {
 		if(empty($args) or count($args) < 2) {
 			return false;
 		}
-		var_dump($args); //TODO remove
+		var_dump($args); //TODO: remove
 		$from = $this->getPlugin()->getServer()->getOfflinePlayer($args[0])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[0]);
 		$to = $this->getPlugin()->getServer()->getOfflinePlayer($args[1])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[1]);
 		$fromGroup = $this->getPlugin()->getPlayerProvider()->getGroup($from);

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\providers;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
@@ -26,7 +27,7 @@ class YAMLProvider extends DataProvider {
 	/**
 	 * @param IPlayer $player
 	 */
-	public function init(IPlayer $player) {
+	public function init(IPlayer $player) : void {
 		@mkdir($this->plugin->getDataFolder()."players".DIRECTORY_SEPARATOR.strtolower($player->getName()));
 		$config = $this->getPlayerConfig($player);
 		if(!$config->exists("group")) {
@@ -111,7 +112,7 @@ class YAMLProvider extends DataProvider {
 	/**
 	 * @return array
 	 */
-	public function getPlayerGroups() : array{
+	public function getPlayerGroups() : array {
 		$return = [];
 		foreach(new \RegexIterator(new \DirectoryIterator($this->plugin->getDataFolder()), "/\\.yml$/i") as $file){
 			if($file === "." or $file === "..") {

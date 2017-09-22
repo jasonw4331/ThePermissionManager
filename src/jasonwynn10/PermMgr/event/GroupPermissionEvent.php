@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\event;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
@@ -31,7 +32,7 @@ class GroupPermissionEvent extends PermissionEvent {
 	/**
 	 * @param string $group
 	 */
-	public function setGroup(string $group) {
+	public function setGroup(string $group) : void {
 		$this->group = $group;
 	}
 }

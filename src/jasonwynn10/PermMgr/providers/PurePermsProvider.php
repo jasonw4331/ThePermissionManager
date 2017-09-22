@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\providers;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
@@ -12,7 +13,7 @@ class PurePermsProvider extends DataProvider {
 	 *
 	 * @param ThePermissionManager $plugin
 	 */
-	public function __construct(ThePermissionManager $plugin){
+	public function __construct(ThePermissionManager $plugin) {
 		parent::__construct($plugin);
 		new Config($this->plugin->getDataFolder() . "players.yml", Config::YAML, [
 			"jasonwynn10" => [
@@ -27,7 +28,7 @@ class PurePermsProvider extends DataProvider {
 	/**
 	 * @param IPlayer $player
 	 */
-	public function init(IPlayer $player) {
+	public function init(IPlayer $player) : void {
 		$userName = strtolower($player->getName());
 		if(!$this->getPlayerConfig($player)->exists($userName)) {
 			$this->getPlayerConfig($player)->set($userName, [
