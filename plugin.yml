@@ -13,6 +13,8 @@ softdepend:
  - PurePerms
  - SimplePermissions
 extensions:
+# - sqlite3
+# - mysqli
  - yaml
 permissions:
   PermManager:
