@@ -107,6 +107,11 @@ class ThePermissionManager extends PluginBase {
 		if($pureperms !== null) {
 			$pureperms->setEnabled(false);
 		}
+		/** @var \SOFe\SimplePermissions\SimplePermissions|null $simplePerms */
+		$simplePerms = $this->getServer()->getPluginManager()->getPlugin("SimplePermissions");
+		if($simplePerms !== null) {
+			$simplePerms->setEnabled(false);
+		}
 	}
 
 	public function onDisable() {

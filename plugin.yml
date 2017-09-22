@@ -9,7 +9,9 @@ author: "jasonwynn10"
 description: "A modern PocketMine Permission Manager for PMMP servers"
 prefix: "TPM"
 load: STARTUP
-softdepend: PurePerms
+softdepend:
+ - PurePerms
+ - SimplePermissions
 extensions:
  - yaml
 permissions:
