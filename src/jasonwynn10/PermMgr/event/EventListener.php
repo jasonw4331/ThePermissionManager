@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\event;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
@@ -28,7 +29,7 @@ class EventListener implements Listener {
 	 *
 	 * @param PlayerJoinEvent $ev
 	 */
-	public function onJoin(PlayerJoinEvent $ev) {
+	public function onJoin(PlayerJoinEvent $ev) : void {
 		$this->plugin->attachPlayer($ev->getPlayer());
 	}
 
@@ -38,7 +39,7 @@ class EventListener implements Listener {
 	 *
 	 * @param PlayerQuitEvent $ev
 	 */
-	public function onQuit(PlayerQuitEvent $ev) {
+	public function onQuit(PlayerQuitEvent $ev) : void {
 		$this->plugin->detachPlayer($ev->getPlayer());
 	}
 }

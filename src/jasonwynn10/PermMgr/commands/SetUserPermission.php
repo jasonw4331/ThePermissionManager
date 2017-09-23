@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\commands;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
@@ -39,7 +40,7 @@ class SetUserPermission extends PluginCommand {
 		if(empty($args) or count($args) < 2) {
 			return false;
 		}
-		var_dump($args); //TODO remove
+		var_dump($args); //TODO: remove
 		if($sender instanceof Player) {
 			$player = $this->getPlugin()->getServer()->getOfflinePlayer($args[1])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[1]);
 			$permString = $args[0];

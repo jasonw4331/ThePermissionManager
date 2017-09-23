@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\event;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
@@ -34,7 +35,7 @@ class PermissionEvent extends PluginEvent {
 		return $this->permission;
 	}
 
-	public function setPermission(Permission $permission) {
+	public function setPermission(Permission $permission) : void {
 		$this->permission = $permission;
 	}
 
@@ -42,7 +43,7 @@ class PermissionEvent extends PluginEvent {
 		return $this->isGroup;
 	}
 
-	public function setIsGroup(bool $isGroup = true) {
+	public function setIsGroup(bool $isGroup = true) : void {
 		$this->isGroup = $isGroup;
 	}
 
@@ -50,7 +51,7 @@ class PermissionEvent extends PluginEvent {
 		return $this->levelName;
 	}
 
-	public function setLevelName(string $levelName) {
+	public function setLevelName(string $levelName) : void {
 		$this->levelName = $levelName;
 	}
 }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\commands;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
@@ -16,7 +17,7 @@ class UnsetUserPermission extends PluginCommand {
 	 *
 	 * @param ThePermissionManager $plugin
 	 */
-	public function __construct(ThePermissionManager $plugin){
+	public function __construct(ThePermissionManager $plugin) {
 		parent::__construct($plugin->getLanguage()->get("unsetuserpermission.name"), $plugin);
 		$this->setPermission("PermManager.command.unsetuserpermission");
 		$this->setUsage($plugin->getLanguage()->get("unsetuserpermission.usage"));
@@ -39,7 +40,7 @@ class UnsetUserPermission extends PluginCommand {
 		if(empty($args) or count($args) < 2) {
 			return false;
 		}
-		var_dump($args); //TODO remove
+		var_dump($args); //TODO: remove
 		if($sender instanceof Player) {
 			$player = $this->getPlugin()->getServer()->getOfflinePlayer($args[1])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[1]);
 			$permString = $args[0];

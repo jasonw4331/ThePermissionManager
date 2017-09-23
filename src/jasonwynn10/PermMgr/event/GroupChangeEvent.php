@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\event;
 
 use pocketmine\event\Cancellable;
@@ -43,7 +44,7 @@ class GroupChangeEvent extends PluginEvent implements Cancellable {
 	/**
 	 * @param string $group
 	 */
-	public function setNewGroup(string $group) {
+	public function setNewGroup(string $group) : void {
 		$this->newGroup = $group;
 	}
 
@@ -64,7 +65,7 @@ class GroupChangeEvent extends PluginEvent implements Cancellable {
 	/**
 	 * @param IPlayer $player
 	 */
-	public function setPlayer(IPlayer $player) {
+	public function setPlayer(IPlayer $player) : void {
 		$this->player = $player;
 	}
 }

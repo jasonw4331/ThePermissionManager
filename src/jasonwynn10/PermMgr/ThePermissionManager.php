@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr;
 
 use jasonwynn10\PermMgr\commands\DefaultGroup;
@@ -56,7 +57,7 @@ class ThePermissionManager extends PluginBase {
 	/** @var BaseLang $baseLang */
 	private $baseLang = null;
 
-	public function onLoad() {
+	public function onLoad() : void {
 		$this->saveDefaultConfig();
 		$this->groupProvider = new GroupManager($this);
 		if(file_exists($this->getServer()->getPluginPath()."PurePerms")) {
@@ -97,7 +98,7 @@ class ThePermissionManager extends PluginBase {
 		]);
 	}
 
-	public function onEnable() {
+	public function onEnable() : void {
 		new EventListener($this);
 
 		SpoonDetector::printSpoon($this,"spoon.txt");
@@ -107,9 +108,14 @@ class ThePermissionManager extends PluginBase {
 		if($pureperms !== null) {
 			$pureperms->setEnabled(false);
 		}
+		/** @var \SOFe\SimplePermissions\SimplePermissions|null $simplePerms */
+		$simplePerms = $this->getServer()->getPluginManager()->getPlugin("SimplePermissions");
+		if($simplePerms !== null) {
+			$simplePerms->setEnabled(false);
+		}
 	}
 
-	public function onDisable() {
+	public function onDisable() : void {
 		$permissions = [];
 		foreach($this->getServer()->getPluginManager()->getPermissions() as $permission) {
 			$permissions[] = $permission->getName();
@@ -122,7 +128,7 @@ class ThePermissionManager extends PluginBase {
 		}
 	}
 
-	public function importPurePerms() {
+	public function importPurePerms() : void {
 		//Players
 		if(file_exists($this->getServer()->getPluginPath()."PurePerms".DIRECTORY_SEPARATOR."players.yml")) {
 			$importedData = (new Config($this->getServer()->getPluginPath()."PurePerms".DIRECTORY_SEPARATOR."players.yml", Config::YAML))->getAll();

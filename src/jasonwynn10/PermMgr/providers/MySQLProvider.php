@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\providers;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
@@ -31,7 +32,7 @@ class MySQLProvider extends DataProvider {
 	/**
 	 * @param IPlayer $player
 	 */
-	public function init(IPlayer $player) {
+	public function init(IPlayer $player) : void {
 		$result = $this->db->query("INSERT INTO players(username, group) VALUES ('{$this->db->real_escape_string($player->getName())}', '{$this->plugin->getGroups()->getDefaultGroup()}');");
 		if($result instanceof \mysqli_result) {
 			return;

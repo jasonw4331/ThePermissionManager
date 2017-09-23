@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\event;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
@@ -17,7 +18,7 @@ class PermissionDetachEvent extends PluginEvent {
 	 * @param ThePermissionManager $plugin
 	 * @param Player $player
 	 */
-	public function __construct(ThePermissionManager $plugin, Player $player){
+	public function __construct(ThePermissionManager $plugin, Player $player) {
 		parent::__construct($plugin);
 		$this->player = $player;
 	}
@@ -32,7 +33,7 @@ class PermissionDetachEvent extends PluginEvent {
 	/**
 	 * @param Player $player
 	 */
-	public function setPlayer(Player $player) {
+	public function setPlayer(Player $player) : void {
 		$this->player = $player;
 	}
 }

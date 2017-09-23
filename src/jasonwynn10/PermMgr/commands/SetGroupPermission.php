@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace jasonwynn10\PermMgr\commands;
 
 use jasonwynn10\PermMgr\ThePermissionManager;
