@@ -26,7 +26,7 @@ class MySQLProvider extends DataProvider {
 			$plugin->getConfig()->getNested("mysql-settings.db", "PermissionsDB"),
 			$plugin->getConfig()->getNested("mysql-settings.port", 3306)
 		);
-		$this->db->query("CREATE TABLE IF NOT EXISTS players(id INT(16) PRIMARY KEY NOT NULL AUTO_INCREMENT, username VARCHAR(16) UNIQUE KEY NOT NULL, group VARCHAR(32) NOT NULL, permissions TEXT NOT NULL);");
+		$this->db->query("CREATE TABLE IF NOT EXISTS players(id INT(16) PRIMARY KEY NOT NULL AUTO_INCREMENT, username VARCHAR(16) UNIQUE KEY NOT NULL, permissions TEXT NOT NULL);");
 	}
 
 	/**
@@ -43,12 +43,54 @@ class MySQLProvider extends DataProvider {
 
 	/**
 	 * @param IPlayer $player
+	 * @param string $levelName
+	 *
+	 * @return array
+	 */
+	public function getPlayerPermissions(IPlayer $player, string $levelName = "") : array {
+		$result = $this->db->query("SELECT * FROM players WHERE username = '{$this->db->real_escape_string($player->getName())}';");
+		if($result instanceof \mysqli_result) {
+			$arr = $result->fetch_assoc();
+			$return = explode(", ", $arr["permissions"]);
+			return $return;
+		}else{
+			return [];
+		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getPlayerGroups(): array {
+		// TODO: Implement getPlayerGroups() method.
+	}
+
+	/**
+	 * @param IPlayer $player
+	 * @param array $permissions
+	 * @param string $levelName
+	 *
+	 * @return bool
+	 */
+	public function setPlayerPermissions(IPlayer $player, array $permissions, string $levelName = "") : bool {
+		$permissions = implode(", ", $permissions);
+		$result = $this->db->query("INSERT INTO players(username, group, permissions) VALUES ('" . $this->db->escape_string($player->getName()) . "', '" . $this->db->escape_string($this->getGroup($player)) . "', '" . $this->db->escape_string($permissions) . "') ON DUPLICATE KEY UPDATE group = VALUES(group), permissions = VALUES(permissions);");
+		if($result instanceof \mysqli_result) {
+			// TODO
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * @param IPlayer $player
 	 *
 	 * @throws \BadMethodCallException
 	 * @return Config
 	 */
 	public function getPlayerConfig(IPlayer $player) : Config {
-		throw new \BadMethodCallException("mysql doesn't have a Config!");
+		throw new \BadMethodCallException("SQL doesn't have a Config!");
 	}
 
 	/**
@@ -80,41 +122,6 @@ class MySQLProvider extends DataProvider {
 			return true;
 		}else{
 			// TODO
-			return false;
-		}
-	}
-
-	/**
-	 * @param IPlayer $player
-	 * @param string $levelName
-	 *
-	 * @return array
-	 */
-	public function getPlayerPermissions(IPlayer $player, string $levelName = "") : array {
-		$result = $this->db->query("SELECT * FROM players WHERE username = '{$this->db->real_escape_string($player->getName())}';");
-		if($result instanceof \mysqli_result) {
-			$arr = $result->fetch_assoc();
-			$return = explode(", ", $arr["permissions"]);
-			return $return;
-		}else{
-			return [];
-		}
-	}
-
-	/**
-	 * @param IPlayer $player
-	 * @param array $permissions
-	 * @param string $levelName
-	 *
-	 * @return bool
-	 */
-	public function setPlayerPermissions(IPlayer $player, array $permissions, string $levelName = "") : bool {
-		$permissions = implode(", ", $permissions);
-		$result = $this->db->query("INSERT INTO players(username, group, permissions) VALUES ('" . $this->db->escape_string($player->getName()) . "', '" . $this->db->escape_string($this->getGroup($player)) . "', '" . $this->db->escape_string($permissions) . "') ON DUPLICATE KEY UPDATE group = VALUES(group), permissions = VALUES(permissions);");
-		if($result instanceof \mysqli_result) {
-			// TODO
-			return true;
-		}else{
 			return false;
 		}
 	}

@@ -85,28 +85,28 @@ class PurePermsProvider extends DataProvider {
 	/**
 	 * @param IPlayer $player
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public function getGroup(IPlayer $player) : string {
-		return $this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".group", $this->plugin->getGroups()->getDefaultGroup());
+	public function getGroups(IPlayer $player) : array {
+		return [$this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".group", [$this->plugin->getGroups()->getDefaultGroup()])];
 	}
 
 	/**
 	 * @param IPlayer $player
-	 * @param string $group
+	 * @param array $groups
 	 *
 	 * @return bool
 	 */
-	public function setGroup(IPlayer $player, string $group) : bool {
+	public function setGroups(IPlayer $player, array $groups) : bool {
 		$config = $this->getPlayerConfig($player);
-		$config->setNested(strtolower($player->getName()).".group", $group);
+		$config->setNested(strtolower($player->getName()).".group", $groups);
 		return $config->save();
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getPlayerGroups() : array {
+	public function getGroupPlayers() : array {
 		$return = [];
 		foreach ($this->plugin->getGroups()->getGroupsConfig()->getAll(true) as $group) {
 			foreach ($this->getPlayerConfig()->getAll() as $user => $data) {

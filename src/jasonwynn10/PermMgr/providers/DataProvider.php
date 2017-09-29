@@ -49,7 +49,7 @@ abstract class DataProvider {
 	/**
 	 * @return array
 	 */
-	abstract function getPlayerGroups() : array;
+	abstract function getGroupPlayers() : array;
 
 	/**
 	 * @param IPlayer $player
@@ -118,9 +118,17 @@ abstract class DataProvider {
 	/**
 	 * @param IPlayer $player
 	 *
-	 * @return string
+	 * @return array
 	 */
-	abstract function getGroup(IPlayer $player) : string;
+	abstract function getGroups(IPlayer $player) : array;
+
+	/**
+	 * @param IPlayer $player
+	 * @param array $groups
+	 *
+	 * @return bool
+	 */
+	abstract function setGroups(IPlayer $player, array $groups) : bool;
 
 	/**
 	 * @param IPlayer $player
@@ -128,7 +136,11 @@ abstract class DataProvider {
 	 *
 	 * @return bool
 	 */
-	abstract function setGroup(IPlayer $player, string $group) : bool;
+	public function addGroup(IPlayer $player, string $group) : bool {
+		$groups = $this->getGroups($player);
+		$groups[] = $group;
+		return $this->setGroups($groups);
+	}
 
 	/**
 	 * @param IPlayer $from
