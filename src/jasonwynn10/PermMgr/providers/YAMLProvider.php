@@ -91,19 +91,19 @@ class YAMLProvider extends DataProvider {
 	/**
 	 * @param IPlayer $player
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public function getGroup(IPlayer $player) : string {
+	public function getGroups(IPlayer $player) : array {
 		return $this->getPlayerConfig($player)->get("group", $this->plugin->getGroups()->getDefaultGroup());
 	}
 
 	/**
 	 * @param IPlayer $player
-	 * @param string $group
+	 * @param array $group
 	 *
 	 * @return bool
 	 */
-	public function setGroup(IPlayer $player, string $group) : bool {
+	public function setGroups(IPlayer $player, array $group) : bool {
 		$config = $this->getPlayerConfig($player);
 		$config->set("group", $group);
 		return $config->save();
@@ -112,7 +112,7 @@ class YAMLProvider extends DataProvider {
 	/**
 	 * @return array
 	 */
-	public function getPlayerGroups() : array {
+	public function getGroupPlayers() : array {
 		$return = [];
 		foreach(new \RegexIterator(new \DirectoryIterator($this->plugin->getDataFolder()), "/\\.yml$/i") as $file){
 			if($file === "." or $file === "..") {

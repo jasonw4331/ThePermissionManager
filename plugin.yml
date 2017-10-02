@@ -1,6 +1,6 @@
 name: ThePermissionManager
 main: jasonwynn10\PermMgr\ThePermissionManager
-version: 0.3.1
+version: 0.4.1
 api:
  - 3.0.0
  - 3.0.0-ALPHA7

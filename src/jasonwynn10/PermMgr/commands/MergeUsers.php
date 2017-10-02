@@ -42,10 +42,10 @@ class MergeUsers extends PluginCommand {
 		var_dump($args); //TODO: remove
 		$from = $this->getPlugin()->getServer()->getOfflinePlayer($args[0])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[0]);
 		$to = $this->getPlugin()->getServer()->getOfflinePlayer($args[1])->getPlayer() ?? $this->getPlugin()->getServer()->getOfflinePlayer($args[1]);
-		$fromGroup = $this->getPlugin()->getPlayerProvider()->getGroup($from);
-		$toGroup = $this->getPlugin()->getPlayerProvider()->getGroup($to);
-		$group = $this->getPlugin()->getGroups()->getHighest($fromGroup, $toGroup);
-		if(!$this->getPlugin()->getPlayerProvider()->mergePermissions($from, $to) or !$this->getPlugin()->getPlayerProvider()->setGroup($to, $group)) {
+		$fromGroups = $this->getPlugin()->getPlayerProvider()->getGroups($from);
+		$toGroups = $this->getPlugin()->getPlayerProvider()->getGroups($to);
+		$groups = array_unique(array_merge($fromGroups, $toGroups));
+		if(!$this->getPlugin()->getPlayerProvider()->mergePermissions($from, $to) or !$this->getPlugin()->getPlayerProvider()->setGroups($to, $groups)) {
 			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("error"));
 		}else{
 			$sender->sendMessage(TextFormat::YELLOW.$this->getPlugin()->getLanguage()->translateString("mergeuser.success", $to->getName()));
