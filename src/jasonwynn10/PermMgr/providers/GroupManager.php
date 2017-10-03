@@ -124,7 +124,7 @@ class GroupManager {
 	 *
 	 * @return bool
 	 */
-	public function setDefaultGroup(array $groups) : bool {
+	public function setDefaultGroups(array $groups) : bool {
 		foreach ($groups as $group) {
 			foreach ($this->defaultGroups as $old) {
 				$this->getGroupsConfig()->setNested($old.".isDefault", false);

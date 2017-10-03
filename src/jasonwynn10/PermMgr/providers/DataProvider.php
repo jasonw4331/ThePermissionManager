@@ -42,7 +42,9 @@ abstract class DataProvider {
 	 * @return string[]
 	 */
 	public function getAllPlayerPermissions(IPlayer $player, string $levelName = "") : array {
-		$playerPerms = array_merge($this->getPlayerPermissions($player, $levelName), $this->plugin->getGroups()->getAllGroupPermissions($this->getGroup($player), $levelName));
+		$playerPerms = $this->getPlayerPermissions($player, $levelName);
+		foreach($this->getGroups($player) as $group)
+			$playerPerms = array_merge($playerPerms, $this->plugin->getGroups()->getAllGroupPermissions($group, $levelName));
 		return array_unique($playerPerms);
 	}
 
@@ -139,7 +141,7 @@ abstract class DataProvider {
 	public function addGroup(IPlayer $player, string $group) : bool {
 		$groups = $this->getGroups($player);
 		$groups[] = $group;
-		return $this->setGroups($groups);
+		return $this->setGroups($player, $groups);
 	}
 
 	/**
