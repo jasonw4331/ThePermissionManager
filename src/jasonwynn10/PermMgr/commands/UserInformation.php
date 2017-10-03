@@ -67,28 +67,4 @@ class UserInformation extends PluginCommand {
 	public function getPlugin() : Plugin {
 		return parent::getPlugin();
 	}
-
-	/**
-	 * @param Player $player
-	 *
-	 * @return array
-	 */
-	public function generateCustomCommandData(Player $player) : array {
-		$commandData = parent::generateCustomCommandData($player);
-		$players = [$player->getName()];
-		foreach($this->getPlugin()->getServer()->getOnlinePlayers() as $player) {
-			$players[] = $player->getName();
-		}
-		sort($players, SORT_FLAG_CASE);
-		$commandData["overloads"]["default"]["input"]["parameters"] = [
-			[
-				"name" => "player",
-				"type" => "stringenum",
-				"optional" => false,
-				"enum_values" => $players
-			]
-		];
-		$commandData["permission"] = $this->getPermission();
-		return $commandData;
-	}
 }

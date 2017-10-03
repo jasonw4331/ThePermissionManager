@@ -6,7 +6,6 @@ use jasonwynn10\PermMgr\ThePermissionManager;
 
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
-use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
 
@@ -76,36 +75,5 @@ class ListGroupPermissions extends PluginCommand {
 	 */
 	public function getPlugin() : Plugin {
 		return parent::getPlugin();
-	}
-
-	/**
-	 * @param Player $player
-	 *
-	 * @return array
-	 */
-	public function generateCustomCommandData(Player $player) : array {
-		$commandData = parent::generateCustomCommandData($player);
-		$groups = $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true);
-		$worlds = [];
-		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
-			$worlds[] = $level->getName();
-		}
-		sort($worlds, SORT_FLAG_CASE);
-		$commandData["overloads"]["default"]["input"]["parameters"] = [
-			[
-				"name" => "group",
-				"type" => "stringenum",
-				"optional" => false,
-				"enumtext" => $groups
-			],
-			[
-				"name" => "world",
-				"type" => "stringenum",
-				"optional" => true,
-				"enum_values" => $worlds
-			]
-		];
-		$commandData["permission"] = $this->getPermission();
-		return $commandData;
 	}
 }

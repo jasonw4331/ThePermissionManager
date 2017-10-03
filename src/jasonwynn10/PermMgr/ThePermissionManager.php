@@ -64,6 +64,7 @@ class ThePermissionManager extends PluginBase {
 			$this->importPurePerms(); // only works with the yamlv2 provider in PurePerms
 		}
 		$this->getConfig()->reload();
+		/** @var string $lang */
 		$lang = $this->getConfig()->get("lang", BaseLang::FALLBACK_LANGUAGE);
 		$this->baseLang = new BaseLang($lang,$this->getFile() . "resources/");
 		if(!isset($this->playerProvider)) {

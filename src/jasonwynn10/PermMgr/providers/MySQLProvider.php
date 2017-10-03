@@ -33,7 +33,8 @@ class MySQLProvider extends DataProvider {
 	 * @param IPlayer $player
 	 */
 	public function init(IPlayer $player) : void {
-		$result = $this->db->query("INSERT INTO players(username, group) VALUES ('{$this->db->real_escape_string($player->getName())}', '{$this->plugin->getGroups()->getDefaultGroup()}');");
+		$groups = implode(", ", $this->plugin->getGroups()->getDefaultGroups());
+		$result = $this->db->query("INSERT INTO players(username, group) VALUES ('{$this->db->real_escape_string($player->getName())}', '{$groups}');");
 		if($result instanceof \mysqli_result) {
 			return;
 		}else{
@@ -96,26 +97,26 @@ class MySQLProvider extends DataProvider {
 	/**
 	 * @param IPlayer $player
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public function getGroup(IPlayer $player) : string {
+	public function getGroups(IPlayer $player) : array {
 		$result = $this->db->query("SELECT * FROM players WHERE username = '{$this->db->real_escape_string($player->getName())}';");
 		if($result instanceof \mysqli_result) {
 			$arr = $result->fetch_assoc();
-			return $arr["group"];
+			return explode(", ", $arr["group"]);
 		}else{
-			return $this->plugin->getGroups()->getDefaultGroup();
+			return $this->plugin->getGroups()->getDefaultGroups();
 		}
 
 	}
 
 	/**
 	 * @param IPlayer $player
-	 * @param string $group
+	 * @param array $groups
 	 *
 	 * @return bool
 	 */
-	public function setGroup(IPlayer $player, string $group) : bool {
+	public function setGroups(IPlayer $player, array $groups) : bool {
 		$result = $this->db->query("INSERT INTO players(group) WHERE username='{$this->db->real_escape_string($player->getName())}' ON DUPLICATE KEY UPDATE group = VALUES(group);");
 		if($result instanceof \mysqli_result) {
 			// TODO

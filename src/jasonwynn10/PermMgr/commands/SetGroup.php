@@ -50,7 +50,7 @@ class SetGroup extends PluginCommand {
 				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("setgroup.superadmin"));
 				return true;
 			}
-			if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
+			if(!$this->getPlugin()->addPlayerGroup($player, $group)) {
 				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
 				return true;
 			}else{
@@ -66,7 +66,7 @@ class SetGroup extends PluginCommand {
 				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
 				return true;
 			}
-			if(!$this->getPlugin()->setPlayerGroup($player, $group)) {
+			if(!$this->getPlugin()->addPlayerGroup($player, $group)) {
 				$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("error"));
 				return true;
 			}else{
@@ -83,36 +83,5 @@ class SetGroup extends PluginCommand {
 	 */
 	public function getPlugin() : Plugin {
 		return parent::getPlugin();
-	}
-
-	/**
-	 * @param Player $player
-	 *
-	 * @return array
-	 */
-	public function generateCustomCommandData(Player $player) : array {
-		$commandData = parent::generateCustomCommandData($player);
-		$players = [$player->getName()];
-		foreach($this->getPlugin()->getServer()->getOnlinePlayers() as $player) {
-			$players[] = $player->getName();
-		}
-		sort($players, SORT_FLAG_CASE);
-		$groups = $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true);
-		$commandData["overloads"]["default"]["input"]["parameters"] = [
-			[
-				"name" => "player",
-				"type" => "stringenum",
-				"optional" => false,
-				"enum_values" => $players
-			],
-			[
-				"name" => "group",
-				"type" => "stringenum",
-				"optional" => false,
-				"enum_values" => $groups
-			]
-		];
-		$commandData["permission"] = $this->getPermission();
-		return $commandData;
 	}
 }

@@ -6,7 +6,6 @@ use jasonwynn10\PermMgr\ThePermissionManager;
 
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
-use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
 
@@ -58,35 +57,5 @@ class MergeUsers extends PluginCommand {
 	 */
 	public function getPlugin() : Plugin {
 		return parent::getPlugin();
-	}
-
-	/**
-	 * @param Player $player
-	 *
-	 * @return array
-	 */
-	public function generateCustomCommandData(Player $player) : array {
-		$commandData = parent::generateCustomCommandData($player);
-		$players = [$player->getName()];
-		foreach($this->getPlugin()->getServer()->getOnlinePlayers() as $player) {
-			$players[] = $player->getName();
-		}
-		sort($players, SORT_NATURAL | SORT_FLAG_CASE);
-		$commandData["overloads"]["default"]["input"]["parameters"] = [
-			[
-				"name" => "from",
-				"type" => "stringenum",
-				"optional" => false,
-				"enum_values" => $players
-			],
-			[
-				"name" => "to",
-				"type" => "stringenum",
-				"optional" => false,
-				"enum_values" => $players
-			]
-		];
-		$commandData["permission"] = $this->getPermission();
-		return $commandData;
 	}
 }

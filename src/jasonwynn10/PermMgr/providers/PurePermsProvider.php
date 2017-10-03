@@ -17,7 +17,7 @@ class PurePermsProvider extends DataProvider {
 		parent::__construct($plugin);
 		new Config($this->plugin->getDataFolder() . "players.yml", Config::YAML, [
 			"jasonwynn10" => [
-				"group" => $this->plugin->getGroups()->getDefaultGroup(),
+				"group" => implode(", ", $this->plugin->getGroups()->getDefaultGroups()),
 				"permissions" => [],
 				"worlds" => [],
 				"time" => -1
@@ -32,7 +32,7 @@ class PurePermsProvider extends DataProvider {
 		$userName = strtolower($player->getName());
 		if(!$this->getPlayerConfig($player)->exists($userName)) {
 			$this->getPlayerConfig($player)->set($userName, [
-				"group" => $this->plugin->getGroups()->getDefaultGroup(),
+				"group" => implode(", ", $this->plugin->getGroups()->getDefaultGroups()),
 				"permissions" => [],
 				"worlds" => [],
 				"time" => -1
@@ -74,11 +74,11 @@ class PurePermsProvider extends DataProvider {
 		if(empty($levelName)) {
 			$config = $this->getPlayerConfig($player);
 			$config->setNested(strtolower($player->getName()).".permissions", $permissions);
-			return $config->save();
+			return $config->save(true);
 		}else{
 			$config = $this->getPlayerConfig($player);
 			$config->setNested(strtolower($player->getName()).".worlds.$levelName", $permissions);
-			return $config->save();
+			return $config->save(true);
 		}
 	}
 
@@ -88,7 +88,7 @@ class PurePermsProvider extends DataProvider {
 	 * @return array
 	 */
 	public function getGroups(IPlayer $player) : array {
-		return [$this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".group", [$this->plugin->getGroups()->getDefaultGroup()])];
+		return is_array($this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".group", $this->plugin->getGroups()->getDefaultGroups())) ? [$this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".group", $this->plugin->getGroups()->getDefaultGroups()[0])] : $this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".group", [$this->plugin->getGroups()->getDefaultGroups()]);
 	}
 
 	/**
@@ -100,7 +100,7 @@ class PurePermsProvider extends DataProvider {
 	public function setGroups(IPlayer $player, array $groups) : bool {
 		$config = $this->getPlayerConfig($player);
 		$config->setNested(strtolower($player->getName()).".group", $groups);
-		return $config->save();
+		return $config->save(true);
 	}
 
 	/**
