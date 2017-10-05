@@ -145,6 +145,22 @@ abstract class DataProvider {
 	}
 
 	/**
+	 * @param IPlayer $player
+	 * @param string $group
+	 *
+	 * @return bool
+	 */
+	public function removeGroup(IPlayer $player, string $group) : bool {
+		$groups = $this->getGroups($player);
+		$key = array_search($group, $groups);
+		if($key !== null) {
+			unset($groups[$key]);
+			return $this->setGroups($player, $groups);
+		}
+		return false;
+	}
+
+	/**
 	 * @param IPlayer $from
 	 * @param IPlayer $to
 	 *

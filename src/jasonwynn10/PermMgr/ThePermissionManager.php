@@ -421,7 +421,7 @@ class ThePermissionManager extends PluginBase {
 	 *
 	 * @return bool
 	 */
-	public function addPlayerGroup(IPlayer $player, string $group) {
+	public function addPlayerGroup(IPlayer $player, string $group) : bool {
 		$groups = $this->playerProvider->getGroups($player);
 		$groups[] = $group;
 		$this->getServer()->getPluginManager()->callEvent($ev = new GroupChangeEvent($this, $player, $this->playerProvider->getGroups($player), array_unique($groups)));
@@ -430,6 +430,27 @@ class ThePermissionManager extends PluginBase {
 		$return = $this->playerProvider->setGroups($ev->getPlayer(), $ev->getNewGroups());
 		$this->reloadPlayerPermissions([$ev->getPlayer()]);
 		return $return;
+	}
+
+	/**
+	 * @param IPlayer $player
+	 * @param string $group
+	 *
+	 * @return bool
+	 */
+	public function removePlayerGroup(IPlayer $player, string $group) : bool {
+		$groups = $this->playerProvider->getGroups($player);
+		$key = array_search($group, $groups);
+		if($key !== null) {
+			unset($groups[$key]);
+			$this->getServer()->getPluginManager()->callEvent($ev = new GroupChangeEvent($this, $player, $this->playerProvider->getGroups($player), array_unique($groups)));
+			if($ev->isCancelled())
+				return false;
+			$return = $this->playerProvider->setGroups($ev->getPlayer(), $ev->getNewGroups());
+			$this->reloadPlayerPermissions([$ev->getPlayer()]);
+			return $return;
+		}
+		return false;
 	}
 
 	/**
