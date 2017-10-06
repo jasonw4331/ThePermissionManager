@@ -28,6 +28,7 @@ use jasonwynn10\PermMgr\providers\DataProvider;
 use jasonwynn10\PermMgr\providers\GroupManager;
 use jasonwynn10\PermMgr\providers\MySQLProvider;
 use jasonwynn10\PermMgr\providers\PurePermsProvider;
+use jasonwynn10\PermMgr\providers\SQLite3Provider;
 use jasonwynn10\PermMgr\providers\YAMLProvider;
 
 use pocketmine\IPlayer;
@@ -60,7 +61,7 @@ class ThePermissionManager extends PluginBase {
 	public function onLoad() : void {
 		$this->saveDefaultConfig();
 		$this->groupProvider = new GroupManager($this);
-		if(file_exists($this->getServer()->getPluginPath()."PurePerms")) {
+		if(file_exists($this->getServer()->getPluginPath()."PurePerms") and strtolower($this->getConfig()->get("data-provider", "pureperms")) === "pureperms") {
 			$this->importPurePerms(); // only works with the yamlv2 provider in PurePerms
 		}
 		$this->getConfig()->reload();
@@ -68,16 +69,21 @@ class ThePermissionManager extends PluginBase {
 		$lang = $this->getConfig()->get("lang", BaseLang::FALLBACK_LANGUAGE);
 		$this->baseLang = new BaseLang($lang,$this->getFile() . "resources/");
 		if(!isset($this->playerProvider)) {
-			switch(strtolower($this->getConfig()->get("data-provider", "yaml"))) {
+			switch(strtolower($this->getConfig()->get("data-provider", "pureperms"))) {
 				case "mysql":
 					$this->playerProvider = new MySQLProvider($this);
 				break;
-				case "pureperms":
-					$this->playerProvider = new PurePermsProvider($this);
+				case "sqlite3":
+				case "sqlite":
+					$this->playerProvider = new SQLite3Provider($this);
 				break;
 				case "yaml":
-				default:
 					$this->playerProvider = new YAMLProvider($this);
+				break;
+				case "pureperms":
+				default:
+					$this->playerProvider = new PurePermsProvider($this);
+				break;
 			}
 		}
 		$this->superAdmins = $this->getConfig()->get("superadmin-groups", []);
@@ -103,6 +109,7 @@ class ThePermissionManager extends PluginBase {
 		new EventListener($this);
 
 		SpoonDetector::printSpoon($this,"spoon.txt");
+
 		//TODO find and disable other permission managers
 		/** @var \_64FF00\PurePerms\PurePerms|null $pureperms */
 		$pureperms = $this->getServer()->getPluginManager()->getPlugin("PurePerms");
@@ -135,11 +142,13 @@ class ThePermissionManager extends PluginBase {
 			$importedData = (new Config($this->getServer()->getPluginPath()."PurePerms".DIRECTORY_SEPARATOR."players.yml", Config::YAML))->getAll();
 			$this->playerProvider = new PurePermsProvider($this);
 			$this->playerProvider->getPlayerConfig()->setAll($importedData);
+			$this->playerProvider->getPlayerConfig()->save(true);
 		}
 		//Groups
 		if(file_exists($this->getServer()->getPluginPath()."PurePerms".DIRECTORY_SEPARATOR."groups.yml")) {
 			$importedData = (new Config($this->getServer()->getPluginPath()."PurePerms".DIRECTORY_SEPARATOR."groups.yml", Config::YAML))->getAll();
 			$this->groupProvider->getGroupsConfig()->setAll($importedData);
+			$this->groupProvider->getGroupsConfig()->save(true);
 		}
 	}
 
