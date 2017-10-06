@@ -283,7 +283,9 @@ class ThePermissionManager extends PluginBase {
 	 * @return bool
 	 */
 	public function removePlayerPermission(IPlayer $player, Permission $permission, bool $group = false, string $levelName = "") : bool {
-		$this->getServer()->getPluginManager()->callEvent($ev = new PlayerPermissionRemoveEvent($this, $player, $permission, $group, $levelName));
+		$this->getServer()->getPluginManager()->callEvent($ev = new PlayerPermissionRemoveEvent($this, $player, $permission, $levelName, $group));
+		if($ev->isCancelled())
+			return false;
 		if(!$ev->isGroup()) {
 			$this->playerProvider->removePlayerPermissions($ev->getPlayer(), [$permission->getName()], $ev->getLevelName());
 			$this->playerProvider->sortPlayerPermissions($ev->getPlayer());
