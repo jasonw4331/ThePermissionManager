@@ -247,6 +247,8 @@ class ThePermissionManager extends PluginBase {
 			$ev->setCancelled();
 		}
 		$this->getServer()->getPluginManager()->callEvent($ev);
+		if($ev->isCancelled())
+			return false;
 		if(!$ev->isGroup()) {
 			$this->playerProvider->setPlayerPermissions($ev->getPlayer(), [$permission->getName()], $ev->getLevelName());
 			$this->playerProvider->sortPlayerPermissions($ev->getPlayer());
