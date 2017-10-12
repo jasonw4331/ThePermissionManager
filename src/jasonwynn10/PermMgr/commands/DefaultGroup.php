@@ -43,7 +43,7 @@ class DefaultGroup extends PluginCommand {
 			$sender->sendMessage(TextFormat::DARK_RED.$this->getPlugin()->getLanguage()->translateString("invalidgroup", [$group]));
 			return true;
 		}
-		if($this->getPlugin()->getGroups()->setDefaultGroup($group)) {
+		if($this->getPlugin()->getGroups()->addDefaultGroup($group)) {
 			$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("defaultgroup.success", [$group]));
 		}else{
 			$sender->sendMessage($this->getPlugin()->getLanguage()->translateString("error"));

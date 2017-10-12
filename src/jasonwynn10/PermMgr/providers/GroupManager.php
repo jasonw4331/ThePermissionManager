@@ -13,8 +13,8 @@ class GroupManager {
 	/** @var Config $config */
 	protected $config;
 
-	/** @var string $defaultGroup */
-	protected $defaultGroup;
+	/** @var array $defaultGroups */
+	protected $defaultGroups;
 
 	/** @var array $groupAliases */
 	protected $groupAliases = [];
@@ -32,7 +32,7 @@ class GroupManager {
 		foreach($groups as $group => $data) {
 			if(isset($data["isDefault"]) and is_bool($data["isDefault"])) {
 				if($data["isDefault"] === true) {
-					$this->defaultGroup = $group;
+					$this->defaultGroups[] = $group;
 				}
 			}else{
 				$data["isDefault"] = false;
@@ -64,7 +64,7 @@ class GroupManager {
 			}
 			$this->config->set($group, $data);
 		}
-		$this->config->save();
+		$this->config->save(true);
 	}
 
 	/**
@@ -76,10 +76,10 @@ class GroupManager {
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function getDefaultGroup() : string {
-		return $this->defaultGroup;
+	public function getDefaultGroups() : array {
+		return $this->defaultGroups;
 	}
 
 	/**
@@ -120,16 +120,43 @@ class GroupManager {
 	}
 
 	/**
+	 * @param array $groups
+	 *
+	 * @return bool
+	 */
+	public function setDefaultGroups(array $groups) : bool {
+		foreach ($groups as $group) {
+			foreach ($this->defaultGroups as $old) {
+				$this->getGroupsConfig()->setNested($old.".isDefault", false);
+			}
+			$this->defaultGroups = [];
+			$this->defaultGroups[] = $group;
+			$this->getGroupsConfig()->setNested($group.".isDefault", true);
+		}
+		return $this->getGroupsConfig()->save(true);
+	}
+
+	/**
 	 * @param string $group
 	 *
 	 * @return bool
 	 */
-	public function setDefaultGroup(string $group) : bool {
-		$old = $this->defaultGroup;
-		$this->getGroupsConfig()->setNested($old.".isDefault", false);
-		$this->defaultGroup = $group;
+	public function addDefaultGroup(string $group) : bool {
+		$this->defaultGroups[] = $group;
 		$this->getGroupsConfig()->setNested($group.".isDefault", true);
-		return $this->getGroupsConfig()->save();
+		return $this->getGroupsConfig()->save(true);
+	}
+
+	/**
+	 * @param string $group
+	 *
+	 * @return bool
+	 */
+	public function removeDefaultGroup(string $group) : bool {
+		$key = array_search($group, $this->defaultGroups);
+		unset($this->defaultGroups[$key]);
+		$this->getGroupsConfig()->setNested($group.".isDefault", false);
+		return $this->getGroupsConfig()->save(true);
 	}
 
 	/**
@@ -168,10 +195,10 @@ class GroupManager {
 	public function setGroupPermissions(string $group, array $permissions, string $levelName = "") : bool {
 		if(empty($levelName)) {
 			$this->config->setNested("$group.permissions", $permissions);
-			return $this->config->save();
+			return $this->config->save(true);
 		}else{
 			$this->config->setNested("$group.worlds.$levelName", $permissions);
-			return $this->config->save();
+			return $this->config->save(true);
 		}
 	}
 
@@ -287,7 +314,7 @@ class GroupManager {
 				$data = $this->config->get($group, []);
 				sort($data["permissions"], SORT_NATURAL | SORT_FLAG_CASE);
 				$this->config->set($group, $data);
-				$this->config->save();
+				$this->config->save(true);
 				$this->sortGroupPermissions($group);
 			}
 		}else{
@@ -295,7 +322,7 @@ class GroupManager {
 			foreach($groups as $group => $data) {
 				sort($data["permissions"], SORT_NATURAL | SORT_FLAG_CASE);
 				$this->config->set($group, $data);
-				$this->config->save();
+				$this->config->save(true);
 				$this->sortGroupPermissions($group);
 			}
 		}

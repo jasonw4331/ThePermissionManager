@@ -17,7 +17,7 @@ class PurePermsProvider extends DataProvider {
 		parent::__construct($plugin);
 		new Config($this->plugin->getDataFolder() . "players.yml", Config::YAML, [
 			"jasonwynn10" => [
-				"group" => $this->plugin->getGroups()->getDefaultGroup(),
+				"group" => implode(", ", $this->plugin->getGroups()->getDefaultGroups()),
 				"permissions" => [],
 				"worlds" => [],
 				"time" => -1
@@ -32,7 +32,7 @@ class PurePermsProvider extends DataProvider {
 		$userName = strtolower($player->getName());
 		if(!$this->getPlayerConfig($player)->exists($userName)) {
 			$this->getPlayerConfig($player)->set($userName, [
-				"group" => $this->plugin->getGroups()->getDefaultGroup(),
+				"group" => implode(", ", $this->plugin->getGroups()->getDefaultGroups()),
 				"permissions" => [],
 				"worlds" => [],
 				"time" => -1
@@ -74,39 +74,39 @@ class PurePermsProvider extends DataProvider {
 		if(empty($levelName)) {
 			$config = $this->getPlayerConfig($player);
 			$config->setNested(strtolower($player->getName()).".permissions", $permissions);
-			return $config->save();
+			return $config->save(true);
 		}else{
 			$config = $this->getPlayerConfig($player);
 			$config->setNested(strtolower($player->getName()).".worlds.$levelName", $permissions);
-			return $config->save();
+			return $config->save(true);
 		}
 	}
 
 	/**
 	 * @param IPlayer $player
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public function getGroup(IPlayer $player) : string {
-		return $this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".group", $this->plugin->getGroups()->getDefaultGroup());
+	public function getGroups(IPlayer $player) : array {
+		return is_array($this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".group", $this->plugin->getGroups()->getDefaultGroups())) ? [$this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".group", $this->plugin->getGroups()->getDefaultGroups()[0])] : $this->getPlayerConfig($player)->getNested(strtolower($player->getName()).".group", [$this->plugin->getGroups()->getDefaultGroups()]);
 	}
 
 	/**
 	 * @param IPlayer $player
-	 * @param string $group
+	 * @param array $groups
 	 *
 	 * @return bool
 	 */
-	public function setGroup(IPlayer $player, string $group) : bool {
+	public function setGroups(IPlayer $player, array $groups) : bool {
 		$config = $this->getPlayerConfig($player);
-		$config->setNested(strtolower($player->getName()).".group", $group);
-		return $config->save();
+		$config->setNested(strtolower($player->getName()).".group", $groups);
+		return $config->save(true);
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getPlayerGroups() : array {
+	public function getGroupPlayers() : array {
 		$return = [];
 		foreach ($this->plugin->getGroups()->getGroupsConfig()->getAll(true) as $group) {
 			foreach ($this->getPlayerConfig()->getAll() as $user => $data) {

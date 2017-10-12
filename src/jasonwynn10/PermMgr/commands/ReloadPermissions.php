@@ -6,7 +6,6 @@ use jasonwynn10\PermMgr\ThePermissionManager;
 
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
-use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
 
@@ -47,17 +46,5 @@ class ReloadPermissions extends PluginCommand {
 	 */
 	public function getPlugin() : Plugin {
 		return parent::getPlugin();
-	}
-
-	/**
-	 * @param Player $player
-	 *
-	 * @return array
-	 */
-	public function generateCustomCommandData(Player $player) : array {
-		$commandData = parent::generateCustomCommandData($player);
-		$commandData["overloads"]["default"]["input"]["parameters"] = [];
-		$commandData["permission"] = $this->getPermission();
-		return $commandData;
 	}
 }

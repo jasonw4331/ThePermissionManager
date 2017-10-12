@@ -26,61 +26,19 @@ class MySQLProvider extends DataProvider {
 			$plugin->getConfig()->getNested("mysql-settings.db", "PermissionsDB"),
 			$plugin->getConfig()->getNested("mysql-settings.port", 3306)
 		);
-		$this->db->query("CREATE TABLE IF NOT EXISTS players(id INT(16) PRIMARY KEY NOT NULL AUTO_INCREMENT, username VARCHAR(16) UNIQUE KEY NOT NULL, group VARCHAR(32) NOT NULL, permissions TEXT NOT NULL);");
+		$this->db->query("CREATE TABLE IF NOT EXISTS players(id INT(16) PRIMARY KEY NOT NULL AUTO_INCREMENT, username VARCHAR(16) UNIQUE KEY NOT NULL, permissions TEXT NOT NULL);");
 	}
 
 	/**
 	 * @param IPlayer $player
 	 */
 	public function init(IPlayer $player) : void {
-		$result = $this->db->query("INSERT INTO players(username, group) VALUES ('{$this->db->real_escape_string($player->getName())}', '{$this->plugin->getGroups()->getDefaultGroup()}');");
+		$groups = implode(", ", $this->plugin->getGroups()->getDefaultGroups());
+		$result = $this->db->query("INSERT INTO players(username, group) VALUES ('{$this->db->real_escape_string($player->getName())}', '{$groups}');");
 		if($result instanceof \mysqli_result) {
 			return;
 		}else{
 			$this->plugin->getLogger()->error("Player {$player->getName()} could not be initialized!");
-		}
-	}
-
-	/**
-	 * @param IPlayer $player
-	 *
-	 * @throws \BadMethodCallException
-	 * @return Config
-	 */
-	public function getPlayerConfig(IPlayer $player) : Config {
-		throw new \BadMethodCallException("mysql doesn't have a Config!");
-	}
-
-	/**
-	 * @param IPlayer $player
-	 *
-	 * @return string
-	 */
-	public function getGroup(IPlayer $player) : string {
-		$result = $this->db->query("SELECT * FROM players WHERE username = '{$this->db->real_escape_string($player->getName())}';");
-		if($result instanceof \mysqli_result) {
-			$arr = $result->fetch_assoc();
-			return $arr["group"];
-		}else{
-			return $this->plugin->getGroups()->getDefaultGroup();
-		}
-
-	}
-
-	/**
-	 * @param IPlayer $player
-	 * @param string $group
-	 *
-	 * @return bool
-	 */
-	public function setGroup(IPlayer $player, string $group) : bool {
-		$result = $this->db->query("INSERT INTO players(group) WHERE username='{$this->db->real_escape_string($player->getName())}' ON DUPLICATE KEY UPDATE group = VALUES(group);");
-		if($result instanceof \mysqli_result) {
-			// TODO
-			return true;
-		}else{
-			// TODO
-			return false;
 		}
 	}
 
@@ -102,6 +60,13 @@ class MySQLProvider extends DataProvider {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getPlayerGroups(): array {
+		// TODO: Implement getPlayerGroups() method.
+	}
+
+	/**
 	 * @param IPlayer $player
 	 * @param array $permissions
 	 * @param string $levelName
@@ -115,6 +80,49 @@ class MySQLProvider extends DataProvider {
 			// TODO
 			return true;
 		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * @param IPlayer $player
+	 *
+	 * @throws \BadMethodCallException
+	 * @return Config
+	 */
+	public function getPlayerConfig(IPlayer $player) : Config {
+		throw new \BadMethodCallException("SQL doesn't have a Config!");
+	}
+
+	/**
+	 * @param IPlayer $player
+	 *
+	 * @return array
+	 */
+	public function getGroups(IPlayer $player) : array {
+		$result = $this->db->query("SELECT * FROM players WHERE username = '{$this->db->real_escape_string($player->getName())}';");
+		if($result instanceof \mysqli_result) {
+			$arr = $result->fetch_assoc();
+			return explode(", ", $arr["group"]);
+		}else{
+			return $this->plugin->getGroups()->getDefaultGroups();
+		}
+
+	}
+
+	/**
+	 * @param IPlayer $player
+	 * @param array $groups
+	 *
+	 * @return bool
+	 */
+	public function setGroups(IPlayer $player, array $groups) : bool {
+		$result = $this->db->query("INSERT INTO players(group) WHERE username='{$this->db->real_escape_string($player->getName())}' ON DUPLICATE KEY UPDATE group = VALUES(group);");
+		if($result instanceof \mysqli_result) {
+			// TODO
+			return true;
+		}else{
+			// TODO
 			return false;
 		}
 	}

@@ -65,27 +65,4 @@ class PluginPermissions extends PluginCommand {
 	public function getPlugin() : Plugin {
 		return parent::getPlugin();
 	}
-
-	/**
-	 * @param Player $player
-	 *
-	 * @return array
-	 */
-	public function generateCustomCommandData(Player $player) : array {
-		$commandData = parent::generateCustomCommandData($player);
-		$names = ["pocketmine"];
-		foreach($this->getPlugin()->getServer()->getPluginManager()->getPlugins() as $plugin) {
-			$names[] = $plugin->getName();
-		}
-		$commandData["overloads"]["default"]["input"]["parameters"] = [
-			[
-				"name" => "plugin",
-				"type" => "stringenum",
-				"optional" => true,
-				"enum_values" => $names
-			]
-		];
-		$commandData["permission"] = $this->getPermission();
-		return $commandData;
-	}
 }

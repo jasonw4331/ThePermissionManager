@@ -42,14 +42,16 @@ abstract class DataProvider {
 	 * @return string[]
 	 */
 	public function getAllPlayerPermissions(IPlayer $player, string $levelName = "") : array {
-		$playerPerms = array_merge($this->getPlayerPermissions($player, $levelName), $this->plugin->getGroups()->getAllGroupPermissions($this->getGroup($player), $levelName));
+		$playerPerms = $this->getPlayerPermissions($player, $levelName);
+		foreach($this->getGroups($player) as $group)
+			$playerPerms = array_merge($playerPerms, $this->plugin->getGroups()->getAllGroupPermissions($group, $levelName));
 		return array_unique($playerPerms);
 	}
 
 	/**
 	 * @return array
 	 */
-	abstract function getPlayerGroups() : array;
+	abstract function getGroupPlayers() : array;
 
 	/**
 	 * @param IPlayer $player
@@ -118,9 +120,17 @@ abstract class DataProvider {
 	/**
 	 * @param IPlayer $player
 	 *
-	 * @return string
+	 * @return array
 	 */
-	abstract function getGroup(IPlayer $player) : string;
+	abstract function getGroups(IPlayer $player) : array;
+
+	/**
+	 * @param IPlayer $player
+	 * @param array $groups
+	 *
+	 * @return bool
+	 */
+	abstract function setGroups(IPlayer $player, array $groups) : bool;
 
 	/**
 	 * @param IPlayer $player
@@ -128,7 +138,27 @@ abstract class DataProvider {
 	 *
 	 * @return bool
 	 */
-	abstract function setGroup(IPlayer $player, string $group) : bool;
+	public function addGroup(IPlayer $player, string $group) : bool {
+		$groups = $this->getGroups($player);
+		$groups[] = $group;
+		return $this->setGroups($player, $groups);
+	}
+
+	/**
+	 * @param IPlayer $player
+	 * @param string $group
+	 *
+	 * @return bool
+	 */
+	public function removeGroup(IPlayer $player, string $group) : bool {
+		$groups = $this->getGroups($player);
+		$key = array_search($group, $groups);
+		if($key !== null) {
+			unset($groups[$key]);
+			return $this->setGroups($player, $groups);
+		}
+		return false;
+	}
 
 	/**
 	 * @param IPlayer $from

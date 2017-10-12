@@ -18,7 +18,7 @@ class YAMLProvider extends DataProvider {
 		@mkdir($this->plugin->getDataFolder()."players");
 		@mkdir($this->plugin->getDataFolder()."players".DIRECTORY_SEPARATOR."j");
 		new Config($this->plugin->getDataFolder()."players".DIRECTORY_SEPARATOR."j".DIRECTORY_SEPARATOR."permissions.yml", Config::YAML, [
-			"group" => $this->plugin->getGroups()->getDefaultGroup(),
+			"group" => implode(", ", $this->plugin->getGroups()->getDefaultGroups()),
 			"permissions" => [],
 			"worlds" => []
 		]);
@@ -31,17 +31,17 @@ class YAMLProvider extends DataProvider {
 		@mkdir($this->plugin->getDataFolder()."players".DIRECTORY_SEPARATOR.strtolower($player->getName()));
 		$config = $this->getPlayerConfig($player);
 		if(!$config->exists("group")) {
-			$config->set("group", $this->plugin->getGroups()->getDefaultGroup());
-			$config->save();
+			$config->set("group", implode(", ", $this->plugin->getGroups()->getDefaultGroups()));
+			$config->save(true);
 		}
 		if(!$config->exists("permissions")) {
 			$config->set("permissions", []);
-			$config->save();
+			$config->save(true);
 		}
 		if($this->plugin->getConfig()->get("enable-multiworld-perms", false)) {
 			if(!$config->exists("worlds")) {
 				$config->set("worlds", []);
-				$config->save();
+				$config->save(true);
 			}
 		}
 	}
@@ -80,39 +80,39 @@ class YAMLProvider extends DataProvider {
 		if(empty($levelName)) {
 			$config = $this->getPlayerConfig($player);
 			$config->set("permissions", $data);
-			return $config->save();
+			return $config->save(true);
 		}else{
 			$config = $this->getPlayerConfig($player);
 			$config->setNested("worlds.$levelName", $data);
-			return $config->save();
+			return $config->save(true);
 		}
 	}
 
 	/**
 	 * @param IPlayer $player
 	 *
-	 * @return string
+	 * @return array
 	 */
-	public function getGroup(IPlayer $player) : string {
-		return $this->getPlayerConfig($player)->get("group", $this->plugin->getGroups()->getDefaultGroup());
+	public function getGroups(IPlayer $player) : array {
+		return $this->getPlayerConfig($player)->get("group", $this->plugin->getGroups()->getDefaultGroups());
 	}
 
 	/**
 	 * @param IPlayer $player
-	 * @param string $group
+	 * @param array $group
 	 *
 	 * @return bool
 	 */
-	public function setGroup(IPlayer $player, string $group) : bool {
+	public function setGroups(IPlayer $player, array $group) : bool {
 		$config = $this->getPlayerConfig($player);
 		$config->set("group", $group);
-		return $config->save();
+		return $config->save(true);
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getPlayerGroups() : array {
+	public function getGroupPlayers() : array {
 		$return = [];
 		foreach(new \RegexIterator(new \DirectoryIterator($this->plugin->getDataFolder()), "/\\.yml$/i") as $file){
 			if($file === "." or $file === "..") {

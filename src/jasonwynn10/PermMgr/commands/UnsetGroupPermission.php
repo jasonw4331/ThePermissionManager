@@ -8,7 +8,6 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\ConsoleCommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\permission\Permission;
-use pocketmine\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\utils\TextFormat;
 
@@ -152,49 +151,5 @@ class UnsetGroupPermission extends PluginCommand {
 	 */
 	public function getPlugin() : Plugin {
 		return parent::getPlugin();
-	}
-
-	/**
-	 * @param Player $player
-	 *
-	 * @return array
-	 */
-	public function generateCustomCommandData(Player $player) : array {
-		$commandData = parent::generateCustomCommandData($player);
-		$groups = $this->getPlugin()->getGroups()->getGroupsConfig()->getAll(true);
-		$permissions = [];
-		$groupPerms = $this->getPlugin()->getGroups()->getAllGroupPermissions($this->getPlugin()->getPlayerProvider()->getGroup($player));
-		foreach($this->getPlugin()->getServer()->getPluginManager()->getPermissions() as $permission) {
-			if(in_array($permission->getName(), $groupPerms))
-				$permissions[] = $permission->getName();
-		}
-		sort($permissions, SORT_NATURAL | SORT_FLAG_CASE);
-		$worlds = [];
-		foreach($this->getPlugin()->getServer()->getLevels() as $level) {
-			$worlds[] = $level->getName();
-		}
-		sort($worlds, SORT_FLAG_CASE);
-		$commandData["overloads"]["default"]["input"]["parameters"] = [
-			[
-				"name" => "group",
-				"type" => "stringenum",
-				"optional" => false,
-				"enum_values" => $groups
-			],
-			[
-				"name" => "permission",
-				"type" => "stringenum",
-				"optional" => false,
-				"enum_values" => $permissions
-			],
-			[
-				"name" => "world",
-				"type" => "stringenum",
-				"optional" => true,
-				"enum_values" => $worlds
-			]
-		];
-		$commandData["permission"] = $this->getPermission();
-		return $commandData;
 	}
 }

@@ -10,11 +10,11 @@ use pocketmine\plugin\Plugin;
 class GroupChangeEvent extends PluginEvent implements Cancellable {
 	public static $handlerList = null;
 
-	/** @var string $oldGroup */
-	protected $oldGroup;
+	/** @var array $oldGroup */
+	protected $oldGroups;
 
-	/** @var string $newGroup */
-	protected $newGroup;
+	/** @var array $newGroup */
+	protected $newGroups;
 
 	/** @var IPlayer $player */
 	protected $player;
@@ -24,35 +24,39 @@ class GroupChangeEvent extends PluginEvent implements Cancellable {
 	 *
 	 * @param Plugin $plugin
 	 * @param IPlayer $player
-	 * @param string $oldGroup
-	 * @param string $newGroup
+	 * @param array $oldGroups
+	 * @param array $newGroups
 	 */
-	public function __construct(Plugin $plugin, IPlayer $player, string $oldGroup, string $newGroup) {
+	public function __construct(Plugin $plugin, IPlayer $player, array $oldGroups, array $newGroups) {
 		parent::__construct($plugin);
-		$this->oldGroup = $oldGroup;
-		$this->newGroup = $newGroup;
+		$this->oldGroups = $oldGroups;
+		$this->newGroups = $newGroups;
 		$this->player = $player;
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function getNewGroup() : string {
-		return $this->newGroup;
+	public function getNewGroups() : array {
+		return $this->newGroups;
 	}
 
 	/**
-	 * @param string $group
+	 * @param array $groups
 	 */
-	public function setNewGroup(string $group) : void {
-		$this->newGroup = $group;
+	public function setNewGroups(array $groups) : void {
+		$this->newGroups = $groups;
+	}
+
+	public function addNewGroups(array $groups) : void {
+		$this->newGroups = array_unique(array_merge($this->newGroups, $groups));
 	}
 
 	/**
-	 * @return string
+	 * @return array
 	 */
-	public function getOldGroup() : string {
-		return $this->oldGroup;
+	public function getOldGroups() : array {
+		return $this->oldGroups;
 	}
 
 	/**
