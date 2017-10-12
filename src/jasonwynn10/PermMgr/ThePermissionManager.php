@@ -124,13 +124,12 @@ class ThePermissionManager extends PluginBase {
 	}
 
 	public function onDisable() : void {
+		@unlink($this->getDataFolder()."Permission_List.txt");
 		$permissions = [];
 		foreach($this->getServer()->getPluginManager()->getPermissions() as $permission) {
 			$permissions[] = $permission->getName();
 		}
-		$permissions = implode(PHP_EOL, $permissions);
-		@unlink($this->getDataFolder()."Permission_List.txt");
-		@file_put_contents($this->getDataFolder()."Permission_List.txt", $permissions);
+		@file_put_contents($this->getDataFolder()."Permission_List.txt", implode(PHP_EOL, $permissions));
 		foreach($this->getServer()->getOnlinePlayers() as $player) {
 			$this->detachPlayer($player);
 		}
