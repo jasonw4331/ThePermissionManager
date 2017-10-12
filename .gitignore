@@ -1,3 +1,8 @@
+config.yml
 .idea/
+!/resources/config.yml
+.github/
 .poggit.yml
-icon.jpg
+icon.png
+.travis.yml
+.travis.pmcommands.txt
