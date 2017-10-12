@@ -242,7 +242,7 @@ class ThePermissionManager extends PluginBase {
 	 * @return bool
 	 */
 	public function addPlayerPermission(IPlayer $player, Permission $permission, bool $group = false, string $levelName = "") : bool {
-		$ev = new PlayerPermissionAddEvent($this, $player, $permission, $group, $levelName);
+		$ev = new PlayerPermissionAddEvent($this, $player, $permission, $levelName, $group);
 		if(strtolower($permission->getName()) === "pocketmine.command.op" and $this->getConfig()->get("disable-op", true) !== true) {
 			$ev->setCancelled();
 		}
